@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Studium</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #top-bar {
+      padding: 10px;
+      background: #f0f0f0;
+      display: flex;
+    }
+    #url {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 8px 12px;
+      margin-left: 5px;
+    }
+    webview {
+      width: 100%;
+      height: calc(100vh - 50px);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="top-bar">
+    <input id="url" placeholder="Enter URL like https://example.com" />
+    <button onclick="loadURL()">Go</button>
+  </div>
+
+  <webview id="view" src="https://example.com"></webview>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
