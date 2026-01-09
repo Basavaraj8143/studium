@@ -30,11 +30,13 @@
 
 <body>
   <div id="top-bar">
-    <input id="url" placeholder="Enter URL like https://example.com" />
-    <button onclick="loadURL()">Go</button>
-  </div>
+  <input id="url" placeholder="Enter URL like https://example.com" />
+  <button onclick="loadURL()">Go</button>
+  <button onclick="openPDF()">Open PDF</button>
+</div>
 
-  <webview id="view" src="https://example.com"></webview>
+<webview id="view" src="https://example.com"></webview>
+
 
   <script src="renderer.js"></script>
 </body>

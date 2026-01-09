@@ -1,11 +1,13 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+
+let win;
 
 function createWindow() {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1000,
     height: 700,
     webPreferences: {
-      webviewTag: true,      // 🔴 THIS IS THE KEY
+      webviewTag: true,
       nodeIntegration: true,
       contextIsolation: false
     }
@@ -13,6 +15,20 @@ function createWindow() {
 
   win.loadFile("index.html");
 }
+
+ipcMain.on("open-pdf", async () => {
+  const result = await dialog.showOpenDialog(win, {
+    properties: ["openFile"],
+    filters: [
+      { name: "PDF Files", extensions: ["pdf"] }
+    ]
+  });
+
+  if (!result.canceled) {
+    const pdfPath = result.filePaths[0];
+    win.webContents.send("load-pdf", pdfPath);
+  }
+});
 
 app.whenReady().then(createWindow);
 
