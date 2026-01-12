@@ -3,39 +3,61 @@
 <head>
   <title>Studium</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-    }
-    #top-bar {
-      padding: 10px;
-      background: #f0f0f0;
-      display: flex;
-    }
-    #url {
-      flex: 1;
-      padding: 8px;
-      font-size: 14px;
-    }
-    button {
-      padding: 8px 12px;
-      margin-left: 5px;
-    }
-    webview {
-      width: 100%;
-      height: calc(100vh - 50px);
-    }
-  </style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #top-bar {
+    padding: 10px;
+    background: #f0f0f0;
+    display: flex;
+    gap: 6px;
+  }
+
+  #url {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  button {
+    padding: 8px 12px;
+  }
+
+  #content {
+    flex: 1;
+  }
+
+  webview {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
 </head>
 
 <body>
   <div id="top-bar">
-  <input id="url" placeholder="Enter URL like https://example.com" />
+  <input id="url" placeholder="Enter URL or search" />
   <button onclick="loadURL()">Go</button>
   <button onclick="openPDF()">Open PDF</button>
+  <button onclick="toggleStudyMode()">Study Mode</button>
 </div>
 
-<webview id="view" src="https://example.com"></webview>
+<div id="content">
+  <webview id="view" src="https://example.com"></webview>
+</div>
+
 
 
   <script src="renderer.js"></script>

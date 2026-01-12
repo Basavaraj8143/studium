@@ -1,28 +1,21 @@
 🟢 Day 3 — Memory Cleanup & Resource Control
-What I did
 
-Implemented explicit cleanup when switching away from a PDF
+## What I Accomplished
 
-Stopped PDF rendering using webview.stop()
+- Implemented explicit cleanup procedures when navigating away from PDF content
+- Used `webview.stop()` to halt PDF rendering processes
+- Forced content unloading by navigating to `about:blank`
+- Verified memory release after PDF closure
+- Resolved navigation abort errors through proper cleanup sequencing
 
-Forced unloading using about:blank
+## Key Concepts Learned
 
-Ensured memory was released after closing PDFs
+- Chromium may retain renderer processes unless explicitly terminated
+- Aggressive resource cleanup is essential for consistent memory usage
+- Navigation abort errors (ERR_ABORTED) are normal during cleanup operations
+- Correct sequencing of cleanup steps prevents renderer conflicts
+- Lightweight applications require deliberate resource destruction
 
-Fixed navigation abort errors by sequencing cleanup correctly
+## Main Takeaway
 
-What I learned
-
-Chromium may keep renderers alive unless explicitly cleaned
-
-Aggressive cleanup is necessary for predictable RAM usage
-
-Navigation abort errors (ERR_ABORTED) are expected during cleanup
-
-Proper sequencing prevents renderer conflicts
-
-Lightweight software requires intentional destruction of resources
-
-Key takeaway
-
-Lightweight behavior is achieved by explicit lifecycle control, not by hoping the system frees memory automatically.
+Achieving lightweight performance demands explicit lifecycle management rather than relying on automatic system memory reclamation.
