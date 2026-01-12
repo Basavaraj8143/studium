@@ -42,3 +42,17 @@ function cleanupPDF() {
 
   isPDFOpen = false;
 }
+
+let studyMode = false;
+
+function toggleStudyMode() {
+  const topBar = document.getElementById("top-bar");
+
+  studyMode = !studyMode;
+
+  if (studyMode) {
+    topBar.style.display = "none";
+  } else {
+    topBar.style.display = "flex";
+  }
+}

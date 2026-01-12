@@ -1,36 +1,28 @@
 🟢 Day 2 — PDF Handling & Memory Observation
-What I did
 
-Added a feature to open local PDF files
+## What I Accomplished
 
-Used Electron’s native file picker
+- Implemented functionality to open local PDF files within the application
+- Integrated Electron's native file dialog for PDF selection
+- Enabled direct PDF rendering inside the browser window
+- Conducted memory usage comparisons between Studium and major browsers (Edge/Chrome) when loading identical PDFs
 
-Loaded PDFs directly inside the browser window
+## Key Concepts Learned
 
-Compared RAM usage between Studium and Edge/Chrome for the same PDF
+Traditional browsers like Edge and Chrome have high memory consumption due to:
+- Loading and running browser extensions
+- Maintaining background tabs and processes
+- Utilizing JavaScript-based PDF rendering engines
 
-What I learned
+An optimized Electron environment can:
+- Render PDFs with reduced system overhead
+- Eliminate unnecessary background processes and extensions
+- Performance optimizations require empirical measurement rather than assumptions
 
-Browsers like Edge/Chrome consume high RAM because they:
+## Memory Usage Observation
 
-Load extensions
+When loading the same PDF file, Studium used approximately 50% less RAM compared to Microsoft Edge on the same system.
 
-Keep background tabs alive
+## Main Takeaway
 
-Use JS-based PDF renderers
-
-A controlled Electron environment can:
-
-Load PDFs with less overhead
-
-Avoid unnecessary background processes
-
-Real performance claims must be measured, not assumed
-
-Observation
-
-When opening the same PDF file, Studium consumed approximately 2× less RAM than Microsoft Edge on the same system.
-
-Key takeaway
-
-Reducing memory usage is possible by reducing features and background activity, not by changing the rendering engine.
+Memory efficiency can be achieved by minimizing features and background activity, rather than fundamentally changing the underlying rendering technology.
