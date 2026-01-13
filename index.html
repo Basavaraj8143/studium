@@ -1,64 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Studium</title>
+
   <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
 
-  body {
-    display: flex;
-    flex-direction: column;
-  }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
 
-  #top-bar {
-    padding: 10px;
-    background: #f0f0f0;
-    display: flex;
-    gap: 6px;
-  }
+    /* Top URL bar */
+    #top-bar {
+      padding: 10px;
+      background: #f0f0f0;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
 
-  #url {
-    flex: 1;
-    padding: 8px;
-    font-size: 14px;
-  }
+    #url {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+    }
 
-  button {
-    padding: 8px 12px;
-  }
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+    }
 
-  #content {
-    flex: 1;
-  }
+    /* Tabs bar */
+    #tabs-bar {
+      padding: 6px 10px;
+      background: #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
 
-  webview {
-    width: 100%;
-    height: 100%;
-  }
-</style>
+    /* Content area */
+    #content {
+      flex: 1;
+    }
 
+    webview {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 </head>
 
 <body>
+
+  <!-- URL + controls -->
   <div id="top-bar">
-  <input id="url" placeholder="Enter URL or search" />
-  <button onclick="loadURL()">Go</button>
-  <button onclick="openPDF()">Open PDF</button>
-  <button onclick="toggleStudyMode()">Study Mode</button>
-</div>
+    <input
+      id="url"
+      placeholder="Enter URL like https://example.com"
+    />
+    <button onclick="loadURL()">Go</button>
+    <button onclick="openPDF()">Open PDF</button>
+    <button onclick="toggleStudyMode()">Study Mode</button>
+  </div>
 
-<div id="content">
-  <webview id="view" src="https://example.com"></webview>
-</div>
+  <!-- Tabs info -->
+  <div id="tabs-bar">
+    <button onclick="newTab()">+ New Tab</button>
+    <span id="tab-info">Tabs: 1 / 5</span>
+  </div>
 
-
+  <!-- Main content -->
+  <div id="content">
+    <webview id="view" src="https://example.com"></webview>
+  </div>
 
   <script src="renderer.js"></script>
 </body>

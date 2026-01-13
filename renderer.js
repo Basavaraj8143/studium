@@ -1,58 +1,86 @@
 const { ipcRenderer } = require("electron");
 
+const MAX_TABS = 5;
+
+let tabs = [];
+let activeTabIndex = 0;
 let isPDFOpen = false;
+
+// Initial tab
+window.onload = () => {
+  tabs.push({ url: "https://example.com" });
+  loadActiveTab();
+  updateTabInfo();
+};
+
+function loadActiveTab() {
+  const webview = document.getElementById("view");
+  webview.loadURL(tabs[activeTabIndex].url);
+}
+
+function updateTabInfo() {
+  document.getElementById("tab-info").innerText =
+    `Tabs: ${tabs.length} / ${MAX_TABS}`;
+}
+
+function newTab() {
+  if (tabs.length >= MAX_TABS) {
+    alert("Tab limit reached. Close a tab to open a new one.");
+    return;
+  }
+
+  tabs.push({ url: "https://example.com" });
+  activeTabIndex = tabs.length - 1;
+  loadActiveTab();
+  updateTabInfo();
+}
 
 function loadURL() {
   const input = document.getElementById("url");
-  const webview = document.getElementById("view");
-
   let url = input.value;
+
   if (!url.startsWith("http")) {
     url = "https://" + url;
   }
 
-  // If a PDF was open, clean it before loading site
   if (isPDFOpen) {
-    cleanupPDF();
+    cleanupPDF(() => {
+      tabs[activeTabIndex].url = url;
+      loadActiveTab();
+    });
+  } else {
+    tabs[activeTabIndex].url = url;
+    loadActiveTab();
   }
-
-  webview.loadURL(url);
 }
 
 function openPDF() {
   ipcRenderer.send("open-pdf");
 }
 
-// Receive PDF path from main process
 ipcRenderer.on("load-pdf", (event, pdfPath) => {
-  const webview = document.getElementById("view");
   isPDFOpen = true;
-  webview.loadURL(`file://${pdfPath}`);
+  tabs[activeTabIndex].url = `file://${pdfPath}`;
+  loadActiveTab();
 });
 
-// Cleanup function
-function cleanupPDF() {
+function cleanupPDF(callback) {
   const webview = document.getElementById("view");
-
-  // Stop loading
   webview.stop();
-
-  // Force reload to blank page
   webview.loadURL("about:blank");
 
-  isPDFOpen = false;
+  setTimeout(() => {
+    isPDFOpen = false;
+    if (callback) callback();
+  }, 300);
 }
-
-let studyMode = false;
 
 function toggleStudyMode() {
   const topBar = document.getElementById("top-bar");
+  const tabsBar = document.getElementById("tabs-bar");
 
-  studyMode = !studyMode;
+  const hidden = topBar.style.display === "none";
 
-  if (studyMode) {
-    topBar.style.display = "none";
-  } else {
-    topBar.style.display = "flex";
-  }
+  topBar.style.display = hidden ? "flex" : "none";
+  tabsBar.style.display = hidden ? "flex" : "none";
 }
