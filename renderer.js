@@ -84,3 +84,32 @@ function toggleStudyMode() {
   topBar.style.display = hidden ? "flex" : "none";
   tabsBar.style.display = hidden ? "flex" : "none";
 }
+let readerMode = false;
+
+function toggleReaderMode() {
+  const webview = document.getElementById("view");
+
+  readerMode = !readerMode;
+
+  if (readerMode) {
+    webview.executeJavaScript(`
+      (function () {
+        document.body.style.background = "#fdfdfd";
+        document.body.style.color = "#000";
+        document.body.style.fontSize = "18px";
+        document.body.style.lineHeight = "1.7";
+        document.body.style.padding = "40px";
+        document.body.style.maxWidth = "800px";
+        document.body.style.margin = "auto";
+
+        const unwanted = document.querySelectorAll(
+          "nav, header, footer, aside, iframe, ads, .ads, .ad, .sidebar"
+        );
+        unwanted.forEach(el => el.remove());
+      })();
+    `);
+  } else {
+    // Reload page to restore original content
+    webview.reload();
+  }
+}
