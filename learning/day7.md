@@ -95,7 +95,6 @@ A long-session simulation was repeated after fixes:
 - ✅ Stable under extended usage
 
 ---
-
 ## Next Step
 
 Proceed to **Day 8 — Study Brain (Context Preservation)**  
