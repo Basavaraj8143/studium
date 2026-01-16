@@ -19,7 +19,7 @@
       flex-direction: column;
     }
 
-    /* Top URL bar */
+    /* Top bar */
     #top-bar {
       padding: 10px;
       background: #f0f0f0;
@@ -35,7 +35,7 @@
     }
 
     button {
-      padding: 8px 12px;
+      padding: 6px 10px;
       cursor: pointer;
     }
 
@@ -44,12 +44,35 @@
       padding: 6px 10px;
       background: #ddd;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 14px;
+      gap: 10px;
     }
 
-    /* Content area */
+    #tabs {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .tab {
+      padding: 4px 10px;
+      background: #bbb;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      user-select: none;
+    }
+
+    .tab.active {
+      background: #888;
+      color: #fff;
+    }
+
+    #tab-info {
+      font-size: 13px;
+    }
+
+    /* Content */
     #content {
       flex: 1;
     }
@@ -63,26 +86,27 @@
 
 <body>
 
-  <!-- URL + controls -->
+  <!-- Top controls -->
   <div id="top-bar">
-    <input
-      id="url"
-      placeholder="Enter URL like https://example.com"
-    />
+    <button onclick="goBack()">←</button>
+    <button onclick="goForward()">→</button>
+
+    <input id="url" placeholder="Enter URL like https://example.com" />
+
     <button onclick="loadURL()">Go</button>
     <button onclick="openPDF()">Open PDF</button>
     <button onclick="toggleStudyMode()">Study Mode</button>
     <button onclick="toggleReaderMode()">Reader Mode</button>
-
   </div>
 
-  <!-- Tabs info -->
+  <!-- Tabs -->
   <div id="tabs-bar">
+    <div id="tabs"></div>
     <button onclick="newTab()">+ New Tab</button>
     <span id="tab-info">Tabs: 1 / 5</span>
   </div>
 
-  <!-- Main content -->
+  <!-- Webview -->
   <div id="content">
     <webview id="view" src="https://example.com"></webview>
   </div>
