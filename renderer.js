@@ -5,43 +5,71 @@ const MAX_TABS = 5;
 let tabs = [];
 let activeTabIndex = 0;
 let isPDFOpen = false;
+let readerMode = false;
 
-// Initial tab
+/* ---------- INIT ---------- */
 window.onload = () => {
   tabs.push({ url: "https://example.com" });
   loadActiveTab();
-  updateTabInfo();
+  renderTabs();
 };
 
+/* ---------- TAB CORE ---------- */
 function loadActiveTab() {
   const webview = document.getElementById("view");
   webview.loadURL(tabs[activeTabIndex].url);
 }
 
-function updateTabInfo() {
+function renderTabs() {
+  const tabsDiv = document.getElementById("tabs");
+  tabsDiv.innerHTML = "";
+
+  tabs.forEach((_, index) => {
+    const el = document.createElement("div");
+    el.className = "tab" + (index === activeTabIndex ? " active" : "");
+    el.innerText = `Tab ${index + 1}`;
+    el.onclick = () => switchTab(index);
+    tabsDiv.appendChild(el);
+  });
+
   document.getElementById("tab-info").innerText =
     `Tabs: ${tabs.length} / ${MAX_TABS}`;
 }
 
 function newTab() {
   if (tabs.length >= MAX_TABS) {
-    alert("Tab limit reached. Close a tab to open a new one.");
+    alert("Tab limit reached.");
     return;
   }
 
   tabs.push({ url: "https://example.com" });
   activeTabIndex = tabs.length - 1;
   loadActiveTab();
-  updateTabInfo();
+  renderTabs();
 }
 
+function switchTab(index) {
+  if (index === activeTabIndex) return;
+
+  if (isPDFOpen) {
+    cleanupPDF(() => {
+      activeTabIndex = index;
+      loadActiveTab();
+      renderTabs();
+    });
+  } else {
+    activeTabIndex = index;
+    loadActiveTab();
+    renderTabs();
+  }
+}
+
+/* ---------- NAVIGATION ---------- */
 function loadURL() {
   const input = document.getElementById("url");
-  let url = input.value;
+  let url = input.value.trim();
 
-  if (!url.startsWith("http")) {
-    url = "https://" + url;
-  }
+  if (!url.startsWith("http")) url = "https://" + url;
 
   if (isPDFOpen) {
     cleanupPDF(() => {
@@ -54,11 +82,22 @@ function loadURL() {
   }
 }
 
+function goBack() {
+  const webview = document.getElementById("view");
+  if (webview.canGoBack()) webview.goBack();
+}
+
+function goForward() {
+  const webview = document.getElementById("view");
+  if (webview.canGoForward()) webview.goForward();
+}
+
+/* ---------- PDF ---------- */
 function openPDF() {
   ipcRenderer.send("open-pdf");
 }
 
-ipcRenderer.on("load-pdf", (event, pdfPath) => {
+ipcRenderer.on("load-pdf", (_, pdfPath) => {
   isPDFOpen = true;
   tabs[activeTabIndex].url = `file://${pdfPath}`;
   loadActiveTab();
@@ -75,20 +114,18 @@ function cleanupPDF(callback) {
   }, 300);
 }
 
+/* ---------- MODES ---------- */
 function toggleStudyMode() {
   const topBar = document.getElementById("top-bar");
   const tabsBar = document.getElementById("tabs-bar");
 
   const hidden = topBar.style.display === "none";
-
   topBar.style.display = hidden ? "flex" : "none";
   tabsBar.style.display = hidden ? "flex" : "none";
 }
-let readerMode = false;
 
 function toggleReaderMode() {
   const webview = document.getElementById("view");
-
   readerMode = !readerMode;
 
   if (readerMode) {
@@ -102,14 +139,12 @@ function toggleReaderMode() {
         document.body.style.maxWidth = "800px";
         document.body.style.margin = "auto";
 
-        const unwanted = document.querySelectorAll(
-          "nav, header, footer, aside, iframe, ads, .ads, .ad, .sidebar"
-        );
-        unwanted.forEach(el => el.remove());
+        document.querySelectorAll(
+          "nav, header, footer, aside, iframe, .ads, .ad, .sidebar"
+        ).forEach(e => e.remove());
       })();
     `);
   } else {
-    // Reload page to restore original content
     webview.reload();
   }
 }
