@@ -9,7 +9,7 @@ let readerMode = false;
 
 /* ---------- INIT ---------- */
 window.onload = () => {
-  tabs.push({ url: "https://example.com" });
+  tabs.push({ url: "https://google.com" });
   loadActiveTab();
   renderTabs();
 };
@@ -25,11 +25,24 @@ function renderTabs() {
   tabsDiv.innerHTML = "";
 
   tabs.forEach((_, index) => {
-    const el = document.createElement("div");
-    el.className = "tab" + (index === activeTabIndex ? " active" : "");
-    el.innerText = `Tab ${index + 1}`;
-    el.onclick = () => switchTab(index);
-    tabsDiv.appendChild(el);
+    const tab = document.createElement("div");
+    tab.className = "tab" + (index === activeTabIndex ? " active" : "");
+
+    const title = document.createElement("span");
+    title.innerText = `Tab ${index + 1}`;
+    title.onclick = () => switchTab(index);
+
+    const close = document.createElement("span");
+    close.innerText = "×";
+    close.className = "close";
+    close.onclick = (e) => {
+      e.stopPropagation();
+      closeTab(index);
+    };
+
+    tab.appendChild(title);
+    tab.appendChild(close);
+    tabsDiv.appendChild(tab);
   });
 
   document.getElementById("tab-info").innerText =
@@ -38,7 +51,7 @@ function renderTabs() {
 
 function newTab() {
   if (tabs.length >= MAX_TABS) {
-    alert("Tab limit reached.");
+    alert("Tab limit reached .");
     return;
   }
 
@@ -63,6 +76,38 @@ function switchTab(index) {
     renderTabs();
   }
 }
+function closeTab(index) {
+  if (tabs.length === 1) {
+    // Always keep at least one tab
+    tabs[0].url = "https://example.com";
+    activeTabIndex = 0;
+    loadActiveTab();
+    renderTabs();
+    return;
+  }
+
+  if (index === activeTabIndex) {
+    if (isPDFOpen) {
+      cleanupPDF(() => removeTab(index));
+    } else {
+      removeTab(index);
+    }
+  } else {
+    removeTab(index);
+  }
+}
+
+function removeTab(index) {
+  tabs.splice(index, 1);
+
+  if (activeTabIndex >= index) {
+    activeTabIndex = Math.max(0, activeTabIndex - 1);
+  }
+
+  loadActiveTab();
+  renderTabs();
+}
+
 
 /* ---------- NAVIGATION ---------- */
 function loadURL() {
