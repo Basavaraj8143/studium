@@ -194,7 +194,7 @@ Add screenshots
 
 Write performance analysis
 
-Day 14 — Code Cleanup & Freeze
+Day 14 — Code Cleanup & 🥶 
 
 Tasks:
 
