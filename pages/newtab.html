@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>New Tab – Studium</title>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: linear-gradient(180deg, #0b1220, #020617);
+      color: #e5e7eb;
+      font-family: Arial, sans-serif;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    h1 {
+      font-weight: normal;
+      font-size: 32px;
+      opacity: 0.9;
+    }
+
+    /* Search box */
+    .search-box {
+      width: 60%;
+      max-width: 520px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 16px;
+      border-radius: 30px;
+      border: none;
+      outline: none;
+      background: #1e293b;
+      color: #e5e7eb;
+    }
+
+    .search-box input::placeholder {
+      color: #9ca3af;
+    }
+
+    /* Quick links */
+    .links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .link {
+      width: 80px;
+      height: 80px;
+      background: #111827;
+      border-radius: 14px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      text-decoration: none;
+      color: #e5e7eb;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .link:hover {
+      background: #1f2937;
+      transform: translateY(-3px);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Greeting -->
+  <h1>Welcome to Studium</h1>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input
+      type="text"
+      id="search"
+      placeholder="Search or enter URL"
+      autofocus
+    />
+  </div>
+
+  <!-- Quick Links -->
+  <div class="links">
+    <div class="link" data-url="https://google.com">Google</div>
+    <div class="link" data-url="https://youtube.com">YouTube</div>
+    <div class="link" data-url="https://github.com">GitHub</div>
+    <div class="link" data-url="https://mail.google.com">Gmail</div>
+    <div class="link" data-url="https://geeksforgeeks.org">GFG</div>
+  </div>
+
+  <!-- Wiring Script -->
+<script>
+  function navigate(value) {
+    window.parent.postMessage(
+      { type: "NAVIGATE", url: value },
+      "*"
+    );
+  }
+
+  const input = document.getElementById("search");
+
+  // Enter key
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      navigate(input.value);
+    }
+  });
+
+  // Quick links
+  document.querySelectorAll(".link").forEach(link => {
+    link.addEventListener("click", () => {
+      navigate(link.dataset.url);
+    });
+  });
+</script>
+
+
+</body>
+</html>

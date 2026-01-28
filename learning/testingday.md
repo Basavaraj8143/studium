@@ -88,8 +88,3 @@ These issues were considered **blocking issues** for a usable browser.
 - ✅ UX ready for real usage
 
 ---
-
-## Next Step
-
-Resume with **Day 8 — Study Brain (Context Preservation)**  
-or freeze **Studium v1** for final documentation and evaluation...
