@@ -1,5 +1,10 @@
 const { ipcRenderer } = require("electron");
 
+
+
+const DISCARD_AFTER_MS = 5 * 60 * 1000; // 5 minutes
+const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s
+
 /* ---------- CONSTANTS ---------- */
 const MAX_TABS = 5;
 const NEW_TAB = "NEW_TAB";
@@ -13,15 +18,24 @@ let readerMode = false;
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
   // Start with New Tab
-  tabs = [{ url: NEW_TAB }];
+tabs = [{
+  url: NEW_TAB,
+  title: "New Tab",
+  lastActive: Date.now(),
+  discarded: false
+}];
   activeTabIndex = 0;
 
   renderTabs();
   loadActiveTab();
+
+  setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
 });
 
 /* ---------- CORE LOADER ---------- */
 function loadActiveTab() {
+
+  tabs[activeTabIndex].lastActive = Date.now();
   const tab = tabs[activeTabIndex];
   if (!tab) return;
 
@@ -34,6 +48,10 @@ function loadActiveTab() {
 
 /* ---------- UI LOADERS ---------- */
 function loadNewTab() {
+
+  tabs[activeTabIndex].title = "New Tab";
+  renderTabs();
+
   const content = document.getElementById("content");
   content.innerHTML = `
     <iframe
@@ -43,8 +61,10 @@ function loadNewTab() {
   `;
 }
 
+
 function loadWebURL(url) {
   const content = document.getElementById("content");
+
   content.innerHTML = `
     <webview
       id="view"
@@ -53,9 +73,44 @@ function loadWebURL(url) {
       webpreferences="contextIsolation=no">
     </webview>
   `;
+
+  const webview = document.getElementById("view");
+
+  // Update title when page title changes
+  webview.addEventListener("page-title-updated", (e) => {
+    tabs[activeTabIndex].title = e.title || "Untitled";
+    renderTabs();
+  });
 }
 
 /* ---------- TABS ---------- */
+
+function discardInactiveTabs() {
+  const now = Date.now();
+
+  tabs.forEach((tab, index) => {
+    if (
+      index !== activeTabIndex &&          // never discard active tab
+      !tab.discarded &&
+      now - tab.lastActive > DISCARD_AFTER_MS
+    ) {
+      tab.discarded = true;
+      console.log("Discarding tab:", tab.title);
+    }
+  });
+
+  renderTabs();
+}
+
+function discardTab(index) {
+  if (index === activeTabIndex) return; // never discard active tab
+
+  tabs[index].discarded = true;
+  tabs[index].lastActive = Date.now();
+
+  renderTabs();
+}
+
 function renderTabs() {
   const tabsDiv = document.getElementById("tabs");
   tabsDiv.innerHTML = "";
@@ -64,9 +119,28 @@ function renderTabs() {
     const tab = document.createElement("div");
     tab.className = "tab" + (index === activeTabIndex ? " active" : "");
 
+    if (tabs[index].discarded) {
+      tab.style.opacity = "0.6";
+    }
+
     const title = document.createElement("span");
-    title.innerText = `Tab ${index + 1}`;
+    title.className = "title";
+    title.innerText = tabs[index].title || `Tab ${index + 1}`;
+
+    if (tabs[index].discarded) {
+      title.innerText = "⏸ " + title.innerText;
+    }
+
     title.onclick = () => switchTab(index);
+
+    const discardBtn = document.createElement("span");
+    discardBtn.innerText = "🧊";
+    discardBtn.title = "Discard tab";
+    discardBtn.style.cursor = "pointer";
+    discardBtn.onclick = (e) => {
+      e.stopPropagation();
+      discardTab(index);
+    };
 
     const close = document.createElement("span");
     close.innerText = "×";
@@ -77,6 +151,7 @@ function renderTabs() {
     };
 
     tab.appendChild(title);
+    tab.appendChild(discardBtn);
     tab.appendChild(close);
     tabsDiv.appendChild(tab);
   });
@@ -91,8 +166,13 @@ function newTab() {
     return;
   }
 
-  tabs.push({ url: NEW_TAB });
-  activeTabIndex = tabs.length - 1;
+tabs.push({
+  url: NEW_TAB,
+  title: "New Tab",
+  lastActive: Date.now(),
+  discarded: false
+});
+activeTabIndex = tabs.length - 1;
 
   renderTabs();
   loadActiveTab();
@@ -102,9 +182,16 @@ function switchTab(index) {
   if (index === activeTabIndex) return;
 
   activeTabIndex = index;
+  tabs[index].lastActive = Date.now();
+
+  if (tabs[index].discarded) {
+    tabs[index].discarded = false;
+  }
+
   renderTabs();
   loadActiveTab();
 }
+
 
 function closeTab(index) {
   if (tabs.length === 1) {
@@ -162,6 +249,7 @@ function openPDF() {
 
 ipcRenderer.on("load-pdf", (_, pdfPath) => {
   tabs[activeTabIndex].url = `file://${pdfPath}`;
+  tabs[activeTabIndex].title = "PDF: " + pdfPath.split("\\").pop();
   loadActiveTab();
 });
 
