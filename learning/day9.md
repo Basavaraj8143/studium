@@ -89,5 +89,8 @@ These optimizations operate entirely at the application level, making them safe,
 ✔ Completed  
 ✔ Stable  
 ✔ Ready for benchmarking
+
+
+
 ![before](../evidence/notfrezed.png)
 ![after](../evidence/whenfrezed.png)

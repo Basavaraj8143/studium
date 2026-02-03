@@ -134,6 +134,23 @@
     <button onclick="toggleReaderMode()">Reader Mode</button>
   </div>
 
+  <!-- Restore Session Bar -->
+  <div id="restore-bar" style="
+    display: none;
+    padding: 8px 12px;
+    background: #fff3cd;
+    border-bottom: 1px solid #ffeeba;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  ">
+    <span id="restore-text">Restore previous session?</span>
+    <button onclick="restorePreviousSession()">Restore</button>
+    <button onclick="startFresh()">Start Fresh</button>
+    <button onclick="dismissRestoreBar()" style="margin-left: auto; background: none; border: none; font-size: 16px; cursor: pointer; color: #666;">×</button>
+  </div>
+
   <!-- Tabs -->
   <div id="tabs-bar">
     <div id="tabs"></div>
