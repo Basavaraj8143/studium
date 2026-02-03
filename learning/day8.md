@@ -12,6 +12,31 @@ To wire the custom **New Tab page** with the main browser logic and ensure smoot
 - It loads instantly and works offline.
 - Acts as the default page on browser launch and when opening a new tab.
 
+In Studium, the home tab is NOT loaded like a normal website.
+
+### 🔑 Key idea
+
+You load the home tab as a local HTML file, not via the internet.
+
+✅ The exact method we are  using
+
+You are loading the home tab using a local file URL:
+
+const NEW_TAB = encodeURI(
+  "file://" + path.resolve(__dirname, "pages", "newtab.html")
+);
+
+
+That means:
+
+**newtab.html** lives inside your project
+
+It is loaded using file://
+
+It does not use a <webview> with external URLs
+
+**It is treated as a local UI page**
+
 ---
 
 ### 2. Search Box Functionality
