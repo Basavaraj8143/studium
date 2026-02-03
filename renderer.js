@@ -17,17 +17,30 @@ let readerMode = false;
 
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
-  // Start with New Tab
-tabs = [{
-  url: NEW_TAB,
-  title: "New Tab",
-  lastActive: Date.now(),
-  discarded: false
-}];
-  activeTabIndex = 0;
+  if (hasPreviousSession()) {
+    document.getElementById("restore-bar").style.display = "flex";
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      dismissRestoreBar();
+    }, 5000);
 
-  renderTabs();
-  loadActiveTab();
+    // Start with a clean New Tab until user decides
+    tabs = [{
+      url: NEW_TAB,
+      title: "New Tab",
+      lastActive: Date.now(),
+      discarded: false
+    }];
+    activeTabIndex = 0;
+
+    renderTabs();
+    loadActiveTab();
+  } else {
+    restoreSession();   // normal flow
+    renderTabs();
+    loadActiveTab();
+  }
 
   setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
 });
@@ -109,6 +122,7 @@ function discardTab(index) {
   tabs[index].lastActive = Date.now();
 
   renderTabs();
+  saveSession();
 }
 
 function renderTabs() {
@@ -176,6 +190,7 @@ activeTabIndex = tabs.length - 1;
 
   renderTabs();
   loadActiveTab();
+  saveSession();
 }
 
 function switchTab(index) {
@@ -190,6 +205,7 @@ function switchTab(index) {
 
   renderTabs();
   loadActiveTab();
+  saveSession();
 }
 
 
@@ -210,6 +226,7 @@ function closeTab(index) {
 
   renderTabs();
   loadActiveTab();
+  saveSession();
 }
 
 /* ---------- NAVIGATION ---------- */
@@ -324,6 +341,93 @@ function navigateFromNewTab(value) {
   loadActiveTab();
 }
 
+/* ---------- restore sessions  ---------- */
+
+function hasPreviousSession() {
+  const raw = localStorage.getItem("lastSession");
+  if (!raw) return false;
+
+  try {
+    const session = JSON.parse(raw);
+    if (!session.tabs || session.tabs.length === 0) return false;
+    
+    // Don't consider it a "previous session" if it's just the default new tab
+    if (session.tabs.length === 1) {
+      const tab = session.tabs[0];
+      if (tab.url === NEW_TAB && tab.title === "New Tab") {
+        return false;
+      }
+    }
+    
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function restoreSession() {
+  const raw = localStorage.getItem("lastSession");
+
+  if (!raw) {
+    tabs = [{
+      url: NEW_TAB,
+      title: "New Tab",
+      lastActive: Date.now(),
+      discarded: false
+    }];
+    activeTabIndex = 0;
+    return;
+  }
+
+  const session = JSON.parse(raw);
+
+  const activeIndex = session.activeTabIndex || 0;
+
+  tabs = session.tabs.map((t, index) => ({
+    url: t.url,
+    title: t.title,
+    lastActive: Date.now(),
+    discarded: index !== activeIndex  // Only discard non-active tabs
+  }));
+
+  activeTabIndex = activeIndex;
+}
+
+function saveSession() {
+  const sessionData = {
+    tabs: tabs.map(t => ({
+      url: t.url,
+      title: t.title,
+      discarded: true   // restore everything as discarded
+    })),
+    activeTabIndex
+  };
+
+  localStorage.setItem("lastSession", JSON.stringify(sessionData));
+}
+
+function restorePreviousSession() {
+  document.getElementById("restore-bar").style.display = "none";
+
+  restoreSession();
+  renderTabs();
+  loadActiveTab();
+}
+
+function startFresh() {
+  document.getElementById("restore-bar").style.display = "none";
+  localStorage.removeItem("lastSession");
+}
+
+function dismissRestoreBar() {
+  const bar = document.getElementById("restore-bar");
+  if (bar) {
+    bar.style.display = "none";
+  }
+}
+
+
+
 
 /* ---------- EXPORTS ---------- */
 window.newTab = newTab;
@@ -333,3 +437,6 @@ window.goForward = goForward;
 window.openPDF = openPDF;
 window.toggleStudyMode = toggleStudyMode;
 window.toggleReaderMode = toggleReaderMode;
+window.restorePreviousSession = restorePreviousSession;
+window.startFresh = startFresh;
+window.dismissRestoreBar = dismissRestoreBar;
