@@ -89,10 +89,49 @@ function loadWebURL(url) {
 
   const webview = document.getElementById("view");
 
+  if (!webview) return;
+
   // Update title when page title changes
   webview.addEventListener("page-title-updated", (e) => {
     tabs[activeTabIndex].title = e.title || "Untitled";
     renderTabs();
+  });
+
+  // Ensure links that would open a new window load in the same webview
+  webview.addEventListener("new-window", (e) => {
+    e.preventDefault();
+    const url = e.url;
+    tabs[activeTabIndex].url = url;
+    webview.loadURL(url);
+    saveSession();
+    renderTabs();
+  });
+
+  // Keep the tab URL in sync when navigation occurs
+  webview.addEventListener("will-navigate", (e) => {
+    tabs[activeTabIndex].url = e.url;
+    saveSession();
+  });
+
+  // DOM ready: override window.open and catch _blank links inside the page
+  webview.addEventListener('dom-ready', () => {
+    try {
+      webview.executeJavaScript(`
+        (function(){
+          window.open = function(url){ window.location = url; };
+          document.addEventListener('click', function(e){
+            const a = e.target.closest && e.target.closest('a');
+            if (!a) return;
+            if (a.target === '_blank'){
+              e.preventDefault();
+              window.location = a.href;
+            }
+          }, true);
+        })();
+      `);
+    } catch (err) {
+      console.warn('Failed to inject link override into webview', err);
+    }
   });
 }
 
@@ -285,40 +324,32 @@ function toggleReaderMode() {
   if (!webview) return;
 
   readerMode = !readerMode;
-  if (!readerMode) return;
 
-  function navigateFromNewTab(value) {
-  let url = value.trim();
+  if (readerMode) {
+    // ENABLE reader mode
+    webview.executeJavaScript(`
+      (function () {
+        document.body.setAttribute("data-reader-mode", "true");
 
-  if (!url) return;
+        document.body.style.background = "#fdfdfd";
+        document.body.style.color = "#000";
+        document.body.style.fontSize = "18px";
+        document.body.style.lineHeight = "1.7";
+        document.body.style.padding = "40px";
+        document.body.style.maxWidth = "800px";
+        document.body.style.margin = "auto";
 
-  // If user types a domain or text
-  if (!url.startsWith("http")) {
-    // Treat as search
-    url = "https://www.google.com/search?q=" + encodeURIComponent(url);
+        document.querySelectorAll(
+          "nav, header, footer, aside, iframe, .ads, .ad, .sidebar"
+        ).forEach(e => e.remove());
+      })();
+    `);
+  } else {
+    // DISABLE reader mode → reload page cleanly
+    webview.reload();
   }
-
-  tabs[activeTabIndex].url = url;
-  loadActiveTab();
 }
 
-
-  webview.executeJavaScript(`
-    (function () {
-      document.body.style.background = "#fdfdfd";
-      document.body.style.color = "#000";
-      document.body.style.fontSize = "18px";
-      document.body.style.lineHeight = "1.7";
-      document.body.style.padding = "40px";
-      document.body.style.maxWidth = "800px";
-      document.body.style.margin = "auto";
-
-      document.querySelectorAll(
-        "nav, header, footer, aside, iframe, .ads, .ad, .sidebar"
-      ).forEach(e => e.remove());
-    })();
-  `);
-}
 
 /* ---------- NEW TAB MESSAGE LISTENER ---------- */
 window.addEventListener("message", (event) => {
@@ -340,6 +371,62 @@ function navigateFromNewTab(value) {
   tabs[activeTabIndex].url = url;
   loadActiveTab();
 }
+
+
+
+/* ---------- KEYBOARD SHORTCUTS ---------- */
+document.addEventListener("keydown", (e) => {
+
+
+  // New Tab
+  if (e.ctrlKey && e.key === "t") {
+    e.preventDefault();
+    newTab();
+  }
+
+  // Close Tab
+  if (e.ctrlKey && e.key === "w") {
+    e.preventDefault();
+    closeTab(activeTabIndex);
+  }
+
+  // Focus URL bar
+  if (e.ctrlKey && e.key === "l") {
+    e.preventDefault();
+    document.getElementById("url").focus();
+  }
+
+  // Back
+  if (e.altKey && e.key === "ArrowLeft") {
+    e.preventDefault();
+    goBack();
+  }
+
+  // Forward
+  if (e.altKey && e.key === "ArrowRight") {
+    e.preventDefault();
+    goForward();
+  }
+
+  // Study Mode
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "s") {
+    e.preventDefault();
+    toggleStudyMode();
+  }
+
+  // Reader Mode
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "r") {
+    e.preventDefault();
+    toggleReaderMode();
+  }
+
+  // Open PDF
+  if (e.ctrlKey && e.key.toLowerCase() === "o") {
+    e.preventDefault();
+    openPDF();
+  }
+});
+
 
 /* ---------- restore sessions  ---------- */
 
