@@ -14,6 +14,10 @@ let tabs = [];
 let activeTabIndex = 0;
 let isPDFOpen = false;
 let readerMode = false;
+let restoreBarDisplayBeforeStudy = null;
+let topBarDisplayBeforeStudy = null;
+let tabsBarDisplayBeforeStudy = null;
+let studyMode = false;
 
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
@@ -131,6 +135,21 @@ function loadWebURL(url) {
       `);
     } catch (err) {
       console.warn('Failed to inject link override into webview', err);
+    }
+  });
+
+  // Allow study mode toggle even when focus is inside the webview
+  webview.addEventListener("before-input-event", (event) => {
+    const input = event.input || event;
+    if (!input) return;
+    if (input.type && input.type !== "keyDown") return;
+
+    const key = (input.key || "").toLowerCase();
+    if (input.control && input.shift && key === "s") {
+      if (typeof event.preventDefault === "function") {
+        event.preventDefault();
+      }
+      toggleStudyMode();
     }
   });
 }
@@ -313,10 +332,30 @@ ipcRenderer.on("load-pdf", (_, pdfPath) => {
 function toggleStudyMode() {
   const topBar = document.getElementById("top-bar");
   const tabsBar = document.getElementById("tabs-bar");
+  const restoreBar = document.getElementById("restore-bar");
 
-  const hidden = topBar.style.display === "none";
-  topBar.style.display = hidden ? "flex" : "none";
-  tabsBar.style.display = hidden ? "flex" : "none";
+  if (!topBar || !tabsBar) return;
+
+  if (!studyMode) {
+    topBarDisplayBeforeStudy = getComputedStyle(topBar).display;
+    tabsBarDisplayBeforeStudy = getComputedStyle(tabsBar).display;
+    if (restoreBar) {
+      restoreBarDisplayBeforeStudy = getComputedStyle(restoreBar).display;
+      restoreBar.style.display = "none";
+    }
+
+    topBar.style.display = "none";
+    tabsBar.style.display = "none";
+    studyMode = true;
+    return;
+  }
+
+  topBar.style.display = topBarDisplayBeforeStudy || "flex";
+  tabsBar.style.display = tabsBarDisplayBeforeStudy || "flex";
+  if (restoreBar) {
+    restoreBar.style.display = restoreBarDisplayBeforeStudy || "none";
+  }
+  studyMode = false;
 }
 
 function toggleReaderMode() {
