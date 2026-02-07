@@ -21,6 +21,13 @@ let studyMode = false;
 
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
+  const studyIndicator = document.getElementById("study-indicator");
+  if (studyIndicator) {
+    studyIndicator.addEventListener("click", () => {
+      if (studyMode) toggleStudyMode();
+    });
+  }
+
   if (hasPreviousSession()) {
     document.getElementById("restore-bar").style.display = "flex";
     
@@ -333,6 +340,7 @@ function toggleStudyMode() {
   const topBar = document.getElementById("top-bar");
   const tabsBar = document.getElementById("tabs-bar");
   const restoreBar = document.getElementById("restore-bar");
+  const studyIndicator = document.getElementById("study-indicator");
 
   if (!topBar || !tabsBar) return;
 
@@ -342,6 +350,12 @@ function toggleStudyMode() {
     if (restoreBar) {
       restoreBarDisplayBeforeStudy = getComputedStyle(restoreBar).display;
       restoreBar.style.display = "none";
+    }
+    if (studyIndicator) {
+      studyIndicator.style.display = "flex";
+      studyIndicator.classList.remove("glow");
+      void studyIndicator.offsetWidth;
+      studyIndicator.classList.add("glow");
     }
 
     topBar.style.display = "none";
@@ -354,6 +368,10 @@ function toggleStudyMode() {
   tabsBar.style.display = tabsBarDisplayBeforeStudy || "flex";
   if (restoreBar) {
     restoreBar.style.display = restoreBarDisplayBeforeStudy || "none";
+  }
+  if (studyIndicator) {
+    studyIndicator.style.display = "none";
+    studyIndicator.classList.remove("glow");
   }
   studyMode = false;
 }
