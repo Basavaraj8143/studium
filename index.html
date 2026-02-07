@@ -107,6 +107,59 @@
       font-size: 13px;
     }
 
+    #study-indicator {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 6px 10px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      display: none;
+      z-index: 9999;
+      cursor: pointer;
+      overflow: visible;
+    }
+
+    #study-indicator .light {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%) scale(0.2);
+      opacity: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow:
+        0 0 10px 6px rgba(255, 255, 255, 0.35),
+        0 0 22px 12px rgba(200, 240, 255, 0.25),
+        0 0 36px 18px rgba(150, 220, 255, 0.15);
+      pointer-events: none;
+    }
+
+    #study-indicator.glow .light {
+      animation: studyGlow 3.2s ease-in-out infinite;
+    }
+
+    @keyframes studyGlow {
+      0% {
+        opacity: 0.25;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+      50% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.8);
+      }
+      100% {
+        opacity: 0.25;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+    }
+
     /* Content */
     #content {
       flex: 1;
@@ -149,6 +202,11 @@
     <button onclick="startFresh()">Start Fresh</button>
     <button onclick="dismissRestoreBar()" style="margin-left: auto; background: none; border: none; font-size: 16px; cursor: pointer; color: #666;">×</button>
   </div>
+
+  <button id="study-indicator" type="button" aria-label="Exit Study Mode">
+    Study Mode
+    <span class="light" aria-hidden="true"></span>
+  </button>
 
   <!-- Tabs -->
   <div id="tabs-bar">
