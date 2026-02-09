@@ -8,6 +8,8 @@ const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s
 /* ---------- CONSTANTS ---------- */
 const MAX_TABS = 5;
 const NEW_TAB = "NEW_TAB";
+const SSH_PROFILES_KEY = "ssh_profiles";
+const SSH_FEATURES_ENABLED_KEY = "ssh_features_enabled";
 
 /* ---------- STATE ---------- */
 let tabs = [];
@@ -18,6 +20,9 @@ let restoreBarDisplayBeforeStudy = null;
 let topBarDisplayBeforeStudy = null;
 let tabsBarDisplayBeforeStudy = null;
 let studyMode = false;
+let sshProfiles = [];
+let editingProfileId = null;
+let sshFeaturesEnabled = false;
 
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
@@ -26,6 +31,82 @@ window.addEventListener("DOMContentLoaded", () => {
     studyIndicator.addEventListener("click", () => {
       if (studyMode) toggleStudyMode();
     });
+  }
+
+  const menuBtn = document.getElementById("menu-btn");
+  const menu = document.getElementById("menu");
+  if (menuBtn && menu) {
+    menuBtn.onclick = (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("hidden");
+    };
+
+    document.body.addEventListener("click", () => {
+      menu.classList.add("hidden");
+    });
+  }
+
+  const settingsClose = document.getElementById("settings-close");
+  const settingsBackdrop = document.querySelector(
+    "#settings-modal .modal-backdrop"
+  );
+  if (settingsClose) {
+    settingsClose.addEventListener("click", closeSettings);
+  }
+  if (settingsBackdrop) {
+    settingsBackdrop.addEventListener("click", closeSettings);
+  }
+
+  const sshToggle = document.getElementById("ssh-features-toggle");
+  sshFeaturesEnabled = loadSSHFeaturesEnabled();
+  if (sshToggle) {
+    sshToggle.checked = sshFeaturesEnabled;
+    sshToggle.addEventListener("change", () => {
+      sshFeaturesEnabled = sshToggle.checked;
+      saveSSHFeaturesEnabled();
+      applySSHFeatureState();
+      if (!sshFeaturesEnabled) {
+        closeSSHProfiles();
+      }
+    });
+  }
+
+  applySSHFeatureState();
+
+  const sshModalClose = document.getElementById("ssh-profiles-close");
+  const sshModalBackdrop = document.querySelector(
+    "#ssh-profiles-modal .modal-backdrop"
+  );
+  if (sshModalClose) {
+    sshModalClose.addEventListener("click", closeSSHProfiles);
+  }
+  if (sshModalBackdrop) {
+    sshModalBackdrop.addEventListener("click", closeSSHProfiles);
+  }
+
+  const sshAddBtn = document.getElementById("ssh-add-profile");
+  const sshAddBtnBottom = document.getElementById("ssh-add-profile-bottom");
+  if (sshAddBtn) {
+    sshAddBtn.addEventListener("click", () => {
+      showSSHProfileForm();
+    });
+  }
+  if (sshAddBtnBottom) {
+    sshAddBtnBottom.addEventListener("click", () => {
+      showSSHProfileForm();
+    });
+  }
+
+  const sshCancelBtn = document.getElementById("ssh-cancel-profile");
+  if (sshCancelBtn) {
+    sshCancelBtn.addEventListener("click", () => {
+      showSSHProfilesListView();
+    });
+  }
+
+  const sshSaveBtn = document.getElementById("ssh-save-profile");
+  if (sshSaveBtn) {
+    sshSaveBtn.addEventListener("click", saveSSHProfileFromForm);
   }
 
   if (hasPreviousSession()) {
@@ -407,6 +488,282 @@ function toggleReaderMode() {
   }
 }
 
+function openSSHInfo() {
+  alert(
+    "SSH is an advanced experimental feature.\n" +
+    "It is disabled by default to preserve low memory usage.\n\n" +
+    "You can enable it in future versions."
+  );
+}
+
+function loadSSHFeaturesEnabled() {
+  const raw = localStorage.getItem(SSH_FEATURES_ENABLED_KEY);
+  if (!raw) return false;
+  try {
+    return JSON.parse(raw) === true;
+  } catch {
+    return false;
+  }
+}
+
+function saveSSHFeaturesEnabled() {
+  localStorage.setItem(
+    SSH_FEATURES_ENABLED_KEY,
+    JSON.stringify(sshFeaturesEnabled)
+  );
+}
+
+function applySSHFeatureState() {
+  const sshProfilesItem = document.getElementById("menu-ssh-profiles");
+  const sshTerminalItem = document.getElementById("menu-ssh-terminal");
+
+  if (sshProfilesItem) {
+    sshProfilesItem.classList.toggle("disabled", !sshFeaturesEnabled);
+    sshProfilesItem.setAttribute("aria-disabled", String(!sshFeaturesEnabled));
+  }
+
+  if (sshTerminalItem) {
+    sshTerminalItem.classList.toggle("disabled", !sshFeaturesEnabled);
+    sshTerminalItem.setAttribute("aria-disabled", String(!sshFeaturesEnabled));
+  }
+}
+
+function openSettings() {
+  const modal = document.getElementById("settings-modal");
+  if (!modal) return;
+
+  const menu = document.getElementById("menu");
+  if (menu) {
+    menu.classList.add("hidden");
+  }
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeSettings() {
+  const modal = document.getElementById("settings-modal");
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function loadSSHProfiles() {
+  const raw = localStorage.getItem(SSH_PROFILES_KEY);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSSHProfiles() {
+  localStorage.setItem(SSH_PROFILES_KEY, JSON.stringify(sshProfiles));
+}
+
+function openSSHProfiles() {
+  if (!sshFeaturesEnabled) {
+    alert("SSH features are disabled. Turn them on in Settings to use SSH Profiles.");
+    return;
+  }
+
+  const modal = document.getElementById("ssh-profiles-modal");
+  if (!modal) return;
+
+  sshProfiles = loadSSHProfiles();
+  showSSHProfilesListView();
+
+  const menu = document.getElementById("menu");
+  if (menu) {
+    menu.classList.add("hidden");
+  }
+
+  modal.classList.remove("hidden");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeSSHProfiles() {
+  const modal = document.getElementById("ssh-profiles-modal");
+  if (!modal) return;
+
+  modal.classList.add("hidden");
+  modal.setAttribute("aria-hidden", "true");
+  editingProfileId = null;
+}
+
+function showSSHProfilesListView() {
+  const listView = document.getElementById("ssh-profiles-list-view");
+  const formView = document.getElementById("ssh-profiles-form-view");
+  const title = document.getElementById("ssh-profiles-title");
+  if (listView) listView.classList.remove("hidden");
+  if (formView) formView.classList.add("hidden");
+  if (title) title.textContent = "SSH Profiles";
+  editingProfileId = null;
+  renderSSHProfilesList();
+}
+
+function showSSHProfileForm(profile = null) {
+  const listView = document.getElementById("ssh-profiles-list-view");
+  const formView = document.getElementById("ssh-profiles-form-view");
+  const title = document.getElementById("ssh-profiles-title");
+  if (listView) listView.classList.add("hidden");
+  if (formView) formView.classList.remove("hidden");
+  if (title) title.textContent = profile ? "Edit SSH Profile" : "Add SSH Profile";
+
+  const nameInput = document.getElementById("ssh-profile-name");
+  const hostInput = document.getElementById("ssh-profile-host");
+  const portInput = document.getElementById("ssh-profile-port");
+  const userInput = document.getElementById("ssh-profile-username");
+  const keyPathInput = document.getElementById("ssh-profile-keypath");
+  const authKey = document.getElementById("ssh-auth-key");
+
+  if (profile) {
+    if (nameInput) nameInput.value = profile.name || "";
+    if (hostInput) hostInput.value = profile.host || "";
+    if (portInput) portInput.value = profile.port || 22;
+    if (userInput) userInput.value = profile.username || "";
+    if (keyPathInput) keyPathInput.value = profile.keyPath || "";
+    if (authKey) authKey.checked = true;
+    editingProfileId = profile.id;
+  } else {
+    if (nameInput) nameInput.value = "";
+    if (hostInput) hostInput.value = "";
+    if (portInput) portInput.value = 22;
+    if (userInput) userInput.value = "";
+    if (keyPathInput) keyPathInput.value = "";
+    if (authKey) authKey.checked = true;
+    editingProfileId = null;
+  }
+}
+
+function renderSSHProfilesList() {
+  const emptyState = document.getElementById("ssh-profiles-empty");
+  const list = document.getElementById("ssh-profiles-list");
+  const addBottom = document.getElementById("ssh-add-profile-bottom");
+  if (!list || !emptyState) return;
+
+  list.innerHTML = "";
+
+  if (sshProfiles.length === 0) {
+    emptyState.classList.remove("hidden");
+    list.classList.add("hidden");
+    if (addBottom) addBottom.classList.add("hidden");
+    return;
+  }
+
+  emptyState.classList.add("hidden");
+  list.classList.remove("hidden");
+  if (addBottom) addBottom.classList.remove("hidden");
+
+  sshProfiles.forEach((profile) => {
+    const card = document.createElement("div");
+    card.className = "profile-card";
+
+    const title = document.createElement("div");
+    title.className = "profile-title";
+    title.textContent = profile.name || "Untitled Profile";
+
+    const meta = document.createElement("div");
+    meta.className = "profile-meta";
+    const port = profile.port || 22;
+    meta.textContent = `${profile.username}@${profile.host}:${port}`;
+
+    const auth = document.createElement("div");
+    auth.className = "profile-meta";
+    auth.textContent = "Auth: SSH Key";
+
+    const actions = document.createElement("div");
+    actions.className = "profile-actions";
+
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn";
+    editBtn.type = "button";
+    editBtn.textContent = "Edit";
+    editBtn.addEventListener("click", () => {
+      showSSHProfileForm(profile);
+    });
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "btn";
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", () => {
+      const ok = confirm(`Delete profile "${profile.name}"?`);
+      if (!ok) return;
+      sshProfiles = sshProfiles.filter((p) => p.id !== profile.id);
+      saveSSHProfiles();
+      renderSSHProfilesList();
+    });
+
+    actions.appendChild(editBtn);
+    actions.appendChild(deleteBtn);
+
+    card.appendChild(title);
+    card.appendChild(meta);
+    card.appendChild(auth);
+    card.appendChild(actions);
+    list.appendChild(card);
+  });
+}
+
+function saveSSHProfileFromForm() {
+  const nameInput = document.getElementById("ssh-profile-name");
+  const hostInput = document.getElementById("ssh-profile-host");
+  const portInput = document.getElementById("ssh-profile-port");
+  const userInput = document.getElementById("ssh-profile-username");
+  const keyPathInput = document.getElementById("ssh-profile-keypath");
+
+  const name = nameInput ? nameInput.value.trim() : "";
+  const host = hostInput ? hostInput.value.trim() : "";
+  const username = userInput ? userInput.value.trim() : "";
+  const keyPath = keyPathInput ? keyPathInput.value.trim() : "";
+
+  const portRaw = portInput ? portInput.value.trim() : "";
+  const port = portRaw ? Number(portRaw) : 22;
+
+  if (!name || !host || !username) {
+    alert("Profile Name, Host, and Username are required.");
+    return;
+  }
+
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    alert("Port must be a number between 1 and 65535.");
+    return;
+  }
+
+  if (editingProfileId) {
+    const index = sshProfiles.findIndex((p) => p.id === editingProfileId);
+    if (index !== -1) {
+      sshProfiles[index] = {
+        ...sshProfiles[index],
+        name,
+        host,
+        port,
+        username,
+        auth: "ssh-key",
+        keyPath
+      };
+    }
+  } else {
+    sshProfiles.push({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      name,
+      host,
+      port,
+      username,
+      auth: "ssh-key",
+      keyPath
+    });
+  }
+
+  saveSSHProfiles();
+  showSSHProfilesListView();
+}
+
 
 /* ---------- NEW TAB MESSAGE LISTENER ---------- */
 window.addEventListener("message", (event) => {
@@ -433,6 +790,20 @@ function navigateFromNewTab(value) {
 
 /* ---------- KEYBOARD SHORTCUTS ---------- */
 document.addEventListener("keydown", (e) => {
+
+  const sshModal = document.getElementById("ssh-profiles-modal");
+  if (e.key === "Escape" && sshModal && !sshModal.classList.contains("hidden")) {
+    e.preventDefault();
+    closeSSHProfiles();
+    return;
+  }
+
+  const settingsModal = document.getElementById("settings-modal");
+  if (e.key === "Escape" && settingsModal && !settingsModal.classList.contains("hidden")) {
+    e.preventDefault();
+    closeSettings();
+    return;
+  }
 
 
   // New Tab
@@ -584,3 +955,6 @@ window.toggleReaderMode = toggleReaderMode;
 window.restorePreviousSession = restorePreviousSession;
 window.startFresh = startFresh;
 window.dismissRestoreBar = dismissRestoreBar;
+window.openSSHInfo = openSSHInfo;
+window.openSSHProfiles = openSSHProfiles;
+window.openSettings = openSettings;
