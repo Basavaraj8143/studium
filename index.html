@@ -39,6 +39,352 @@
       cursor: pointer;
     }
 
+    #menu-container {
+      position: relative;
+    }
+
+    #menu-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: 18px;
+      line-height: 1;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #menu-btn:hover {
+      background: #e6e6e6;
+    }
+
+    #menu {
+      position: absolute;
+      top: 36px;
+      right: 0;
+      min-width: 220px;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      padding: 6px;
+      z-index: 10000;
+    }
+
+    .menu-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      text-align: left;
+      font-size: 13px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .menu-item:hover {
+      background: #f2f2f2;
+    }
+
+    .menu-item.disabled {
+      color: #888;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .menu-item.disabled:hover {
+      background: #f7f7f7;
+    }
+
+    .menu-separator {
+      height: 1px;
+      background: #e2e2e2;
+      margin: 4px 2px;
+    }
+
+    .menu-item.has-submenu {
+      position: relative;
+    }
+
+    .submenu {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      margin-right: 6px;
+      min-width: 220px;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      padding: 6px;
+      display: none;
+    }
+
+    .menu-item.has-submenu:hover .submenu,
+    .menu-item.has-submenu:focus-within .submenu {
+      display: block;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 12000;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .modal-panel {
+      position: relative;
+      width: 520px;
+      max-width: calc(100% - 40px);
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100% - 40px);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid #e2e2e2;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-body {
+      padding: 16px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .btn {
+      border: 1px solid #cfcfcf;
+      background: #f7f7f7;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: #fff;
+      border-color: #1a73e8;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      border: 1px dashed #d6d6d6;
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 12px;
+    }
+
+    .profile-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .profile-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #fff;
+    }
+
+    .profile-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .profile-meta {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: #444;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #d0d0d0;
+      font-size: 13px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .field-row .field {
+      flex: 1;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .radio-group input[type="radio"]:disabled + span {
+      color: #999;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: #ededed;
+      margin: 4px 0;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+
+    .settings-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #cfcfcf;
+      transition: 0.2s;
+      border-radius: 999px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      top: 3px;
+      background-color: white;
+      transition: 0.2s;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .switch input:checked + .slider {
+      background-color: #1a73e8;
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
     /* Tabs bar */
     #tabs-bar {
       padding: 6px 10px;
@@ -185,6 +531,22 @@
     <button onclick="openPDF()">Open PDF</button>
     <button onclick="toggleStudyMode()">Study Mode</button>
     <button onclick="toggleReaderMode()">Reader Mode</button>
+    <div id="menu-container">
+      <button id="menu-btn" type="button" aria-label="Menu">&#8942;</button>
+      <div id="menu" class="menu hidden" role="menu">
+        <div class="menu-item has-submenu" role="menuitem" aria-haspopup="true">
+          <span>Advanced</span>
+          <span aria-hidden="true">&#9656;</span>
+          <div class="submenu" role="menu">
+            <button class="menu-item disabled" id="menu-ssh-profiles" type="button" aria-disabled="true" onclick="openSSHProfiles()">SSH Profiles</button>
+            <button class="menu-item disabled" id="menu-ssh-terminal" type="button" aria-disabled="true" onclick="openSSHInfo()">SSH Terminal</button>
+          </div>
+        </div>
+        <div class="menu-separator"></div>
+        <button class="menu-item" id="menu-settings" type="button" onclick="openSettings()">Settings</button>
+        <button class="menu-item" type="button">About Studium</button>
+      </div>
+    </div>
   </div>
 
   <!-- Restore Session Bar -->
@@ -217,6 +579,105 @@
 
   <!-- Webview -->
 <div id="content"></div>
+
+  <!-- SSH Profiles Modal -->
+  <div id="ssh-profiles-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-action="close-ssh-profiles"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="ssh-profiles-title">
+      <div class="modal-header">
+        <h2 id="ssh-profiles-title">SSH Profiles</h2>
+        <button class="icon-btn" id="ssh-profiles-close" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="ssh-profiles-list-view">
+          <div id="ssh-profiles-empty" class="empty-state hidden">
+            <div>No SSH profiles found</div>
+            <button class="btn" id="ssh-add-profile">+ Add New Profile</button>
+            <div class="muted">
+              SSH is an advanced feature. Connections are not started until explicitly opened.
+            </div>
+          </div>
+          <div id="ssh-profiles-list" class="profile-list hidden"></div>
+          <div class="section-divider"></div>
+          <button class="btn" id="ssh-add-profile-bottom">+ Add New Profile</button>
+        </div>
+
+        <div id="ssh-profiles-form-view" class="hidden">
+          <div class="form-grid">
+            <div class="field">
+              <label for="ssh-profile-name">Profile Name *</label>
+              <input id="ssh-profile-name" type="text" placeholder="College Linux VM" />
+            </div>
+
+            <div class="field">
+              <label for="ssh-profile-host">Host *</label>
+              <input id="ssh-profile-host" type="text" placeholder="192.168.1.10" />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="ssh-profile-port">Port</label>
+                <input id="ssh-profile-port" type="number" min="1" max="65535" placeholder="22" />
+              </div>
+              <div class="field">
+                <label for="ssh-profile-username">Username *</label>
+                <input id="ssh-profile-username" type="text" placeholder="student" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Authentication</label>
+              <div class="radio-group">
+                <label>
+                  <input id="ssh-auth-key" type="radio" name="ssh-auth" value="ssh-key" checked />
+                  <span>SSH Key</span>
+                </label>
+                <label>
+                  <input id="ssh-auth-password" type="radio" name="ssh-auth" value="password" disabled />
+                  <span>Password (disabled)</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ssh-profile-keypath">Private Key Path</label>
+              <input id="ssh-profile-keypath" type="text" placeholder="C:/Users/.../id_rsa" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-ghost" id="ssh-cancel-profile" type="button">Cancel</button>
+            <button class="btn btn-primary" id="ssh-save-profile" type="button">Save Profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-action="close-settings"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <h2 id="settings-title">Settings</h2>
+        <button class="icon-btn" id="settings-close" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-row">
+          <div>
+            <div class="settings-title">Turn on SSH features (Experimental)</div>
+            <div class="muted">
+              Disabled by default to preserve low memory usage. No SSH processes start until enabled.
+            </div>
+          </div>
+          <label class="switch">
+            <input id="ssh-features-toggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
 
  
 
