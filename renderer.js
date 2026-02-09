@@ -287,23 +287,24 @@ function renderTabs() {
     title.className = "title";
     title.innerText = tabs[index].title || `Tab ${index + 1}`;
 
-    if (tabs[index].discarded) {
-      title.innerText = "⏸ " + title.innerText;
-    }
-
     title.onclick = () => switchTab(index);
 
     const discardBtn = document.createElement("span");
-    discardBtn.innerText = "🧊";
-    discardBtn.title = "Discard tab";
-    discardBtn.style.cursor = "pointer";
-    discardBtn.onclick = (e) => {
-      e.stopPropagation();
-      discardTab(index);
-    };
+    discardBtn.className = "discard";
+    discardBtn.innerText = "\uD83E\uDDCA";
+    if (index === activeTabIndex) {
+      discardBtn.classList.add("disabled");
+      discardBtn.title = "Cannot discard active tab";
+    } else {
+      discardBtn.title = "Discard tab";
+      discardBtn.onclick = (e) => {
+        e.stopPropagation();
+        discardTab(index);
+      };
+    }
 
     const close = document.createElement("span");
-    close.innerText = "×";
+    close.innerText = "x";
     close.className = "close";
     close.onclick = (e) => {
       e.stopPropagation();
