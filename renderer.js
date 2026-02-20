@@ -122,7 +122,8 @@ window.addEventListener("DOMContentLoaded", () => {
       url: NEW_TAB,
       title: "New Tab",
       lastActive: Date.now(),
-      discarded: false
+      discarded: false,
+      isLoading: false
     }];
     activeTabIndex = 0;
 
@@ -151,10 +152,112 @@ function loadActiveTab() {
   }
 }
 
+function setTabLoading(index, isLoading) {
+  const tab = tabs[index];
+  if (!tab) return;
+  if (tab.isLoading === isLoading) return;
+  tab.isLoading = isLoading;
+  renderTabs();
+}
+
+async function getActiveWebviewMemoryMB() {
+  const webview = document.getElementById("view");
+  if (!webview) {
+    return { ok: false, reason: "webview-not-found" };
+  }
+
+  const canGetWebContentsId = typeof webview.getWebContentsId === "function";
+  const canGetPid = typeof webview.getProcessId === "function";
+  if (!canGetWebContentsId && !canGetPid) {
+    return { ok: false, reason: "webview-api-unavailable" };
+  }
+
+  let webContentsId = null;
+  let pid = null;
+
+  try {
+    if (canGetWebContentsId) {
+      const candidate = Number(webview.getWebContentsId());
+      if (Number.isInteger(candidate) && candidate > 0) {
+        webContentsId = candidate;
+      }
+    }
+  } catch {
+    // fallback to pid
+  }
+
+  try {
+    if (canGetPid) {
+      const candidatePid = Number(webview.getProcessId());
+      if (Number.isInteger(candidatePid) && candidatePid > 0) {
+        pid = candidatePid;
+      }
+    }
+  } catch {
+    // fallback to other pid sources
+  }
+
+  try {
+    if (typeof webview.getOSProcessId === "function") {
+      const candidateOsPid = Number(webview.getOSProcessId());
+      if (Number.isInteger(candidateOsPid) && candidateOsPid > 0) {
+        pid = candidateOsPid;
+      }
+    }
+  } catch {
+    // keep current pid value
+  }
+
+  if (webContentsId === null && pid === null) {
+    return { ok: false, reason: "ids-not-available" };
+  }
+
+  try {
+    const result = await ipcRenderer.invoke("tab-memory-usage", { webContentsId, pid });
+    if (!result || !result.ok || typeof result.memoryMB !== "number") {
+      return {
+        ok: false,
+        reason: (result && result.reason) || "memory-not-available"
+      };
+    }
+    return { ok: true, memoryMB: result.memoryMB };
+  } catch {
+    return { ok: false, reason: "ipc-failed" };
+  }
+}
+
+async function updateCloseTooltip(index, closeEl) {
+  if (!closeEl) return;
+
+  if (index !== activeTabIndex) {
+    closeEl.title = "Close tab (RAM: active tab only)";
+    return;
+  }
+
+  const tab = tabs[activeTabIndex];
+  if (!tab || tab.url === NEW_TAB) {
+    closeEl.title = "Close tab (RAM: not available on New Tab)";
+    return;
+  }
+
+  closeEl.title = "Close tab (RAM: checking...)";
+  const result = await getActiveWebviewMemoryMB();
+
+  if (!closeEl.isConnected || index !== activeTabIndex) return;
+
+  if (!result.ok) {
+    closeEl.title = `Close tab (RAM: unavailable - ${result.reason})`;
+    return;
+  }
+
+  closeEl.title = `Close tab (RAM: ${result.memoryMB.toFixed(1)} MB)`;
+}
+
 /* ---------- UI LOADERS ---------- */
 function loadNewTab() {
 
   tabs[activeTabIndex].title = "New Tab";
+  setTabLoading(activeTabIndex, false);
   renderTabs();
 
   const content = document.getElementById("content");
@@ -168,6 +271,9 @@ function loadNewTab() {
 
 
 function loadWebURL(url) {
+  const tabIndex = activeTabIndex;
+  setTabLoading(tabIndex, true);
+
   const content = document.getElementById("content");
 
   content.innerHTML = `
@@ -181,28 +287,48 @@ function loadWebURL(url) {
 
   const webview = document.getElementById("view");
 
-  if (!webview) return;
+  if (!webview) {
+    setTabLoading(tabIndex, false);
+    return;
+  }
 
   // Update title when page title changes
   webview.addEventListener("page-title-updated", (e) => {
-    tabs[activeTabIndex].title = e.title || "Untitled";
+    if (!tabs[tabIndex]) return;
+    tabs[tabIndex].title = e.title || "Untitled";
     renderTabs();
   });
 
   // Ensure links that would open a new window load in the same webview
   webview.addEventListener("new-window", (e) => {
     e.preventDefault();
-    const url = e.url;
-    tabs[activeTabIndex].url = url;
-    webview.loadURL(url);
+    if (!tabs[tabIndex]) return;
+    const nextURL = e.url;
+    tabs[tabIndex].url = nextURL;
+    setTabLoading(tabIndex, true);
+    webview.loadURL(nextURL);
     saveSession();
     renderTabs();
   });
 
   // Keep the tab URL in sync when navigation occurs
   webview.addEventListener("will-navigate", (e) => {
-    tabs[activeTabIndex].url = e.url;
+    if (!tabs[tabIndex]) return;
+    tabs[tabIndex].url = e.url;
+    setTabLoading(tabIndex, true);
     saveSession();
+  });
+
+  webview.addEventListener("did-start-loading", () => {
+    setTabLoading(tabIndex, true);
+  });
+
+  webview.addEventListener("did-stop-loading", () => {
+    setTabLoading(tabIndex, false);
+  });
+
+  webview.addEventListener("did-fail-load", () => {
+    setTabLoading(tabIndex, false);
   });
 
   // DOM ready: override window.open and catch _blank links inside the page
@@ -289,30 +415,44 @@ function renderTabs() {
 
     title.onclick = () => switchTab(index);
 
-    const discardBtn = document.createElement("span");
-    discardBtn.className = "discard";
-    discardBtn.innerText = "\uD83E\uDDCA";
-    if (index === activeTabIndex) {
-      discardBtn.classList.add("disabled");
-      discardBtn.title = "Cannot discard active tab";
+    const status = document.createElement("span");
+    status.className = "status";
+    if (tabs[index].isLoading) {
+      status.classList.add("loading");
+      status.title = "Loading...";
+      status.setAttribute("aria-label", "Loading");
     } else {
-      discardBtn.title = "Discard tab";
-      discardBtn.onclick = (e) => {
-        e.stopPropagation();
-        discardTab(index);
-      };
+      status.classList.add("discard");
+      status.innerText = "\uD83E\uDDCA";
+      if (index === activeTabIndex) {
+        status.classList.add("disabled");
+        status.title = "Cannot discard active tab";
+      } else {
+        status.title = "Discard tab";
+        status.onclick = (e) => {
+          e.stopPropagation();
+          discardTab(index);
+        };
+      }
     }
 
     const close = document.createElement("span");
     close.innerText = "x";
     close.className = "close";
+    close.title = "Close tab";
+    close.onmouseenter = () => {
+      updateCloseTooltip(index, close);
+    };
+    close.onmouseleave = () => {
+      close.title = "Close tab";
+    };
     close.onclick = (e) => {
       e.stopPropagation();
       closeTab(index);
     };
 
     tab.appendChild(title);
-    tab.appendChild(discardBtn);
+    tab.appendChild(status);
     tab.appendChild(close);
     tabsDiv.appendChild(tab);
   });
@@ -331,7 +471,8 @@ tabs.push({
   url: NEW_TAB,
   title: "New Tab",
   lastActive: Date.now(),
-  discarded: false
+  discarded: false,
+  isLoading: false
 });
 activeTabIndex = tabs.length - 1;
 
@@ -406,6 +547,34 @@ function goForward() {
   }
 }
 
+function refreshPage() {
+  const activeTab = tabs[activeTabIndex];
+  if (!activeTab) return;
+
+  // New Tab is rendered as a local iframe.
+  if (activeTab.url === NEW_TAB) {
+    const refreshTabIndex = activeTabIndex;
+    const iframe = document.querySelector("#content iframe");
+    if (iframe && iframe.contentWindow) {
+      setTabLoading(refreshTabIndex, true);
+      iframe.contentWindow.location.reload();
+      setTimeout(() => setTabLoading(refreshTabIndex, false), 150);
+    } else {
+      loadNewTab();
+    }
+    return;
+  }
+
+  const webview = document.getElementById("view");
+  if (webview) {
+    setTabLoading(activeTabIndex, true);
+    webview.reload();
+    return;
+  }
+
+  loadActiveTab();
+}
+
 /* ---------- PDF ---------- */
 function openPDF() {
   ipcRenderer.send("open-pdf");
@@ -414,6 +583,7 @@ function openPDF() {
 ipcRenderer.on("load-pdf", (_, pdfPath) => {
   tabs[activeTabIndex].url = `file://${pdfPath}`;
   tabs[activeTabIndex].title = "PDF: " + pdfPath.split("\\").pop();
+  setTabLoading(activeTabIndex, true);
   loadActiveTab();
 });
 
@@ -837,6 +1007,12 @@ document.addEventListener("keydown", (e) => {
     goForward();
   }
 
+  // Refresh
+  if (((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === "r") || e.key === "F5") {
+    e.preventDefault();
+    refreshPage();
+  }
+
   // Study Mode
   if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "s") {
     e.preventDefault();
@@ -889,7 +1065,8 @@ function restoreSession() {
       url: NEW_TAB,
       title: "New Tab",
       lastActive: Date.now(),
-      discarded: false
+      discarded: false,
+      isLoading: false
     }];
     activeTabIndex = 0;
     return;
@@ -903,7 +1080,8 @@ function restoreSession() {
     url: t.url,
     title: t.title,
     lastActive: Date.now(),
-    discarded: index !== activeIndex  // Only discard non-active tabs
+    discarded: index !== activeIndex,  // Only discard non-active tabs
+    isLoading: false
   }));
 
   activeTabIndex = activeIndex;
@@ -950,6 +1128,7 @@ window.newTab = newTab;
 window.loadURL = loadURL;
 window.goBack = goBack;
 window.goForward = goForward;
+window.refreshPage = refreshPage;
 window.openPDF = openPDF;
 window.toggleStudyMode = toggleStudyMode;
 window.toggleReaderMode = toggleReaderMode;
