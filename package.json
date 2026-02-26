@@ -11,8 +11,8 @@
     "electron-builder": "^26.8.1"
   },
   "build": {
-    "appId": "com.studium.browser",
-    "productName": "Studium",
+    "appId": "com.studium.browser.pro",
+    "productName": "Studium Pro",
     "directories": {
       "output": "dist"
     },

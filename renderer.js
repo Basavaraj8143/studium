@@ -2,11 +2,12 @@ const { ipcRenderer } = require("electron");
 
 
 
-const DISCARD_AFTER_MS = 5 * 60 * 1000; // 5 minutes
-const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s
+const AUTO_DISCARD_ENABLED = false;
+const DISCARD_AFTER_MS = 5 * 60 * 1000; // used only when auto-discard is enabled
+const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s when enabled
 
 /* ---------- CONSTANTS ---------- */
-const MAX_TABS = 5;
+const MAX_TABS = 20;
 const NEW_TAB = "NEW_TAB";
 const SSH_PROFILES_KEY = "ssh_profiles";
 const SSH_FEATURES_ENABLED_KEY = "ssh_features_enabled";
@@ -135,7 +136,9 @@ window.addEventListener("DOMContentLoaded", () => {
     loadActiveTab();
   }
 
-  setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
+  if (AUTO_DISCARD_ENABLED) {
+    setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
+  }
 });
 
 /* ---------- CORE LOADER ---------- */
@@ -371,6 +374,8 @@ function loadWebURL(url) {
 /* ---------- TABS ---------- */
 
 function discardInactiveTabs() {
+  if (!AUTO_DISCARD_ENABLED) return;
+
   const now = Date.now();
 
   tabs.forEach((tab, index) => {
@@ -463,7 +468,7 @@ function renderTabs() {
 
 function newTab() {
   if (tabs.length >= MAX_TABS) {
-    alert("Tab limit reached");
+    alert(`Tab limit reached (${MAX_TABS})`);
     return;
   }
 
@@ -662,18 +667,18 @@ function toggleReaderMode() {
 function openSSHInfo() {
   alert(
     "SSH is an advanced experimental feature.\n" +
-    "It is disabled by default to preserve low memory usage.\n\n" +
-    "You can enable it in future versions."
+    "In Studium Pro it is enabled by default.\n\n" +
+    "Connections only start when you explicitly open one."
   );
 }
 
 function loadSSHFeaturesEnabled() {
   const raw = localStorage.getItem(SSH_FEATURES_ENABLED_KEY);
-  if (!raw) return false;
+  if (!raw) return true;
   try {
     return JSON.parse(raw) === true;
   } catch {
-    return false;
+    return true;
   }
 }
 
@@ -1080,7 +1085,9 @@ function restoreSession() {
     url: t.url,
     title: t.title,
     lastActive: Date.now(),
-    discarded: index !== activeIndex,  // Only discard non-active tabs
+    discarded: AUTO_DISCARD_ENABLED
+      ? index !== activeIndex
+      : false,
     isLoading: false
   }));
 
@@ -1092,7 +1099,7 @@ function saveSession() {
     tabs: tabs.map(t => ({
       url: t.url,
       title: t.title,
-      discarded: true   // restore everything as discarded
+      discarded: AUTO_DISCARD_ENABLED ? Boolean(t.discarded) : false
     })),
     activeTabIndex
   };
