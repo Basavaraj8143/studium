@@ -39,8 +39,8 @@ The Windows installer is generated under `dist` after a successful build.
 
 ## Branch Positioning
 
-- `main` keeps the original low-RAM Studium identity
-- `studium-pro` prioritizes capability, parallel workflows, and advanced features
+- `main` prioritizes capability, parallel workflows, and advanced features
+- `studium-v1` keeps the low ram  Studium identity.
 
 ## License
 
