@@ -440,6 +440,9 @@ function toggleStudyMode() {
       studyIndicator.classList.add("glow");
     }
 
+    const studyBtn = document.getElementById("study-btn");
+    if (studyBtn) studyBtn.classList.add("active");
+
     topBar.style.display = "none";
     tabsBar.style.display = "none";
     studyMode = true;
@@ -455,6 +458,8 @@ function toggleStudyMode() {
     studyIndicator.style.display = "none";
     studyIndicator.classList.remove("glow");
   }
+  const studyBtn = document.getElementById("study-btn");
+  if (studyBtn) studyBtn.classList.remove("active");
   studyMode = false;
 }
 
@@ -463,6 +468,9 @@ function toggleReaderMode() {
   if (!webview) return;
 
   readerMode = !readerMode;
+
+  const readerBtn = document.getElementById("reader-btn");
+  if (readerBtn) readerBtn.classList.toggle("active", readerMode);
 
   if (readerMode) {
     // ENABLE reader mode

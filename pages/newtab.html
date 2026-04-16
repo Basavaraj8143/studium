@@ -3,134 +3,316 @@
 <head>
   <meta charset="UTF-8" />
   <title>New Tab – Studium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
     body {
       margin: 0;
-      padding: 0;
       height: 100vh;
-      background: linear-gradient(180deg, #0b1220, #020617);
-      color: #e5e7eb;
-      font-family: Arial, sans-serif;
-
+      overflow: hidden;
+      background: #f6f8fa;
+      color: #1a1f2e;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 30px;
+      position: relative;
     }
 
-    h1 {
-      font-weight: normal;
-      font-size: 32px;
-      opacity: 0.9;
+    /* ===== SUBTLE BACKGROUND ===== */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
     }
 
-    /* Search box */
-    .search-box {
-      width: 60%;
-      max-width: 520px;
+    /* Very subtle dot grid */
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(37,99,235,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
     }
 
-    .search-box input {
+    /* Soft blue orb top-left */
+    .orb-1 {
+      position: absolute;
+      width: 500px; height: 500px;
+      top: -180px; left: -120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,0.08) 0%, transparent 70%);
+      animation: orbFloat 10s ease-in-out infinite;
+    }
+
+    /* Soft indigo orb bottom-right */
+    .orb-2 {
+      position: absolute;
+      width: 420px; height: 420px;
+      bottom: -150px; right: -100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%);
+      animation: orbFloat 12s 4s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.08); }
+    }
+
+    /* ===== MAIN ===== */
+    .main {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
       width: 100%;
-      padding: 14px 18px;
-      font-size: 16px;
-      border-radius: 30px;
-      border: none;
+    }
+
+    /* ===== CLOCK ===== */
+    #clock {
+      font-size: 72px;
+      font-weight: 300;
+      letter-spacing: -3px;
+      color: #1a1f2e;
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.55s ease forwards;
+    }
+
+    /* ===== GREETING ===== */
+    #greeting {
+      font-size: 15px;
+      font-weight: 400;
+      color: #586069;
+      letter-spacing: 0.2px;
+      margin-top: -14px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUp 0.55s 0.1s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== SEARCH ===== */
+    .search-wrap {
+      width: 100%;
+      max-width: 540px;
+      padding: 0 20px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUp 0.55s 0.2s ease forwards;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9aa4b0;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .search-icon svg { width: 16px; height: 16px; }
+
+    #search {
+      width: 100%;
+      padding: 12px 18px 12px 42px;
+      font-size: 14px;
+      font-family: inherit;
+      border-radius: 999px;
+      border: 1px solid #d0d7de;
+      background: #ffffff;
+      color: #1a1f2e;
       outline: none;
-      background: #1e293b;
-      color: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-
-    .search-box input::placeholder {
-      color: #9ca3af;
+    #search:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15), 0 2px 8px rgba(0,0,0,0.06);
     }
+    #search::placeholder { color: #9aa4b0; }
 
-    /* Quick links */
+    /* ===== QUICK LINKS ===== */
     .links {
       display: flex;
-      gap: 16px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: center;
+      max-width: 580px;
+      padding: 0 20px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeUp 0.55s 0.32s ease forwards;
     }
 
     .link {
       width: 80px;
-      height: 80px;
-      background: #111827;
+      min-height: 80px;
+      background: #ffffff;
+      border: 1px solid #e2e6ea;
       border-radius: 14px;
-
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-
-      text-decoration: none;
-      color: #e5e7eb;
-      font-size: 14px;
-      text-align: center;
+      gap: 8px;
       cursor: pointer;
-
-      transition: background 0.2s, transform 0.2s;
+      color: #586069;
+      font-size: 11px;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, color 0.15s;
+      user-select: none;
     }
-
     .link:hover {
-      background: #1f2937;
+      border-color: #2563eb;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.12);
       transform: translateY(-3px);
+      color: #2563eb;
+    }
+    .link:hover svg { stroke: #2563eb; }
+
+    .link svg { width: 22px; height: 22px; stroke: #586069; transition: stroke 0.15s; }
+    .link-label { line-height: 1; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      position: fixed; bottom: 14px;
+      font-size: 11px; color: #c9d0d8;
+      letter-spacing: 1px; font-weight: 500;
+      user-select: none; z-index: 1;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Greeting -->
-  <h1>Welcome to Studium</h1>
-
-  <!-- Search -->
-  <div class="search-box">
-    <input
-      type="text"
-      id="search"
-      placeholder="Search or enter URL"
-      autofocus
-    />
+  <div class="bg-canvas">
+    <div class="dot-grid"></div>
+    <div class="orb-1"></div>
+    <div class="orb-2"></div>
   </div>
 
-  <!-- Quick Links -->
-  <div class="links">
-    <div class="link" data-url="https://google.com">Google</div>
-    <div class="link" data-url="https://youtube.com">YouTube</div>
-    <div class="link" data-url="https://github.com">GitHub</div>
-    <div class="link" data-url="https://mail.google.com">Gmail</div>
-    <div class="link" data-url="https://geeksforgeeks.org">GFG</div>
+  <div class="main">
+
+    <div id="clock">00:00</div>
+    <div id="greeting">Good morning</div>
+
+    <div class="search-wrap">
+      <span class="search-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </span>
+      <input type="text" id="search" placeholder="Search or enter URL" autofocus />
+    </div>
+
+    <div class="links">
+
+      <!-- Google -->
+      <div class="link" data-url="https://google.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <span class="link-label">Google</span>
+      </div>
+
+      <!-- YouTube -->
+      <div class="link" data-url="https://youtube.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.54C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+          <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+        </svg>
+        <span class="link-label">YouTube</span>
+      </div>
+
+      <!-- GitHub -->
+      <div class="link" data-url="https://github.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+        </svg>
+        <span class="link-label">GitHub</span>
+      </div>
+
+      <!-- Gmail -->
+      <div class="link" data-url="https://mail.google.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        <span class="link-label">Gmail</span>
+      </div>
+
+      <!-- GFG -->
+      <div class="link" data-url="https://geeksforgeeks.org">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <span class="link-label">GFG</span>
+      </div>
+
+      <!-- Wikipedia -->
+      <div class="link" data-url="https://wikipedia.org">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span class="link-label">Wikipedia</span>
+      </div>
+
+    </div>
   </div>
 
-  <!-- Wiring Script -->
-<script>
-  function navigate(value) {
-    window.parent.postMessage(
-      { type: "NAVIGATE", url: value },
-      "*"
-    );
-  }
+  <div class="footer">STUDIUM</div>
 
-  const input = document.getElementById("search");
-
-  // Enter key
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      navigate(input.value);
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('clock').textContent = h + ':' + m;
     }
-  });
 
-  // Quick links
-  document.querySelectorAll(".link").forEach(link => {
-    link.addEventListener("click", () => {
-      navigate(link.dataset.url);
+    function updateGreeting() {
+      const h = new Date().getHours();
+      const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+      document.getElementById('greeting').textContent = g;
+    }
+
+    updateClock();
+    updateGreeting();
+    setInterval(updateClock, 10000);
+
+    function navigate(value) {
+      window.parent.postMessage({ type: 'NAVIGATE', url: value }, '*');
+    }
+
+    document.getElementById('search').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') navigate(this.value);
     });
-  });
-</script>
 
+    document.querySelectorAll('.link').forEach(function(link) {
+      link.addEventListener('click', function() { navigate(link.dataset.url); });
+    });
+  </script>
 
 </body>
 </html>
