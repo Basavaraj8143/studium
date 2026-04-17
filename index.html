@@ -14,7 +14,7 @@
   <!-- Top Bar -->
   <div id="top-bar">
 
-    <span id="browser-logo">S</span>
+    <img id="browser-logo" src="img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="Studium" />
 
     <!-- Back -->
     <button class="nav-btn" onclick="goBack()" title="Back">
@@ -68,6 +68,22 @@
       Reader
     </button>
 
+    <!-- Theme Toggle -->
+    <button class="action-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      Theme
+    </button>
+
     <!-- Menu -->
     <div id="menu-container">
       <button id="menu-btn" type="button" aria-label="Menu">&#8942;</button>
@@ -104,7 +120,6 @@
   <!-- Tab Bar -->
   <div id="tabs-bar">
     <div id="tabs"></div>
-    <button onclick="newTab()">+ New Tab</button>
     <span id="tab-info">1 / 5</span>
   </div>
 

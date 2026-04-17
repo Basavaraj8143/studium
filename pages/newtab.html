@@ -10,12 +10,52 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
 
+    /* ===== DESIGN TOKENS ===== */
+    :root {
+      --bg-base: #f6f8fa;
+      --bg-surface: #ffffff;
+      --bg-raised: #eef1f4;
+      --bg-highlight: #e2e6ea;
+      --border: #d0d7de;
+      --border-muted: #e6e9ed;
+      --text-primary: #1a1f2e;
+      --text-secondary: #586069;
+      --text-muted: #9aa4b0;
+      --accent: #2563eb;
+      --accent-light: #eff6ff;
+      --accent-glow: rgba(37,99,235,0.18);
+      --shadow-xs: 0 1px 2px rgba(0,0,0,0.07);
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
+    }
+
+    /* ===== DARK THEME ===== */
+    :root.dark {
+      --bg-base: #0d1117;
+      --bg-surface: #161b22;
+      --bg-raised: #21262d;
+      --bg-highlight: #30363d;
+      --border: #30363d;
+      --border-muted: #21262d;
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --text-muted: #484f58;
+      --accent: #58a6ff;
+      --accent-light: #092f59;
+      --accent-glow: rgba(88,166,255,0.18);
+      --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.4);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+    }
+
     body {
       margin: 0;
       height: 100vh;
       overflow: hidden;
-      background: #f6f8fa;
-      color: #1a1f2e;
+      background: var(--bg-base);
+      color: var(--text-primary);
       font-family: 'Inter', system-ui, sans-serif;
       -webkit-font-smoothing: antialiased;
       display: flex;
@@ -23,6 +63,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     /* ===== SUBTLE BACKGROUND ===== */
@@ -83,7 +124,7 @@
       font-size: 72px;
       font-weight: 300;
       letter-spacing: -3px;
-      color: #1a1f2e;
+      color: var(--text-primary);
       line-height: 1;
       opacity: 0;
       transform: translateY(12px);
@@ -94,7 +135,7 @@
     #greeting {
       font-size: 15px;
       font-weight: 400;
-      color: #586069;
+      color: var(--text-secondary);
       letter-spacing: 0.2px;
       margin-top: -14px;
       opacity: 0;
@@ -135,18 +176,82 @@
       font-size: 14px;
       font-family: inherit;
       border-radius: 999px;
-      border: 1px solid #d0d7de;
-      background: #ffffff;
-      color: #1a1f2e;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-primary);
       outline: none;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-sm);
       transition: border-color 0.15s, box-shadow 0.15s;
     }
     #search:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.15), 0 2px 8px rgba(0,0,0,0.06);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow), var(--shadow-sm);
     }
-    #search::placeholder { color: #9aa4b0; }
+    #search::placeholder { color: var(--text-muted); }
+
+    /* ===== SUGGESTIONS ===== */
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 20px;
+      right: 20px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 100;
+      margin-top: 8px;
+    }
+
+    .suggestions.hidden {
+      display: none;
+    }
+
+    .suggestion-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-muted);
+      transition: background-color 0.15s;
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:hover,
+    .suggestion-item.selected {
+      background-color: var(--bg-raised);
+    }
+
+    .suggestion-item.selected {
+      background-color: var(--accent-light);
+    }
+
+    .suggestion-icon {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .suggestion-icon svg { width: 14px; height: 14px; }
+
+    .suggestion-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .suggestion-highlight {
+      font-weight: 500;
+      color: var(--accent);
+    }
 
     /* ===== QUICK LINKS ===== */
     .links {
@@ -159,13 +264,16 @@
       opacity: 0;
       transform: translateY(8px);
       animation: fadeUp 0.55s 0.32s ease forwards;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
     }
 
     .link {
       width: 80px;
       min-height: 80px;
-      background: #ffffff;
-      border: 1px solid #e2e6ea;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-muted);
       border-radius: 14px;
       display: flex;
       flex-direction: column;
@@ -173,22 +281,22 @@
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      color: #586069;
+      color: var(--text-secondary);
       font-size: 11px;
       font-weight: 500;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: var(--shadow-xs);
       transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, color 0.15s;
       user-select: none;
     }
     .link:hover {
-      border-color: #2563eb;
-      box-shadow: 0 4px 14px rgba(37,99,235,0.12);
+      border-color: var(--accent);
+      box-shadow: 0 4px 14px var(--accent-glow);
       transform: translateY(-3px);
-      color: #2563eb;
+      color: var(--accent);
     }
-    .link:hover svg { stroke: #2563eb; }
+    .link:hover svg { stroke: var(--accent); }
 
-    .link svg { width: 22px; height: 22px; stroke: #586069; transition: stroke 0.15s; }
+    .link svg { width: 22px; height: 22px; stroke: var(--text-secondary); transition: stroke 0.15s; }
     .link-label { line-height: 1; }
 
     /* ===== FOOTER ===== */
@@ -221,6 +329,7 @@
         </svg>
       </span>
       <input type="text" id="search" placeholder="Search or enter URL" autofocus />
+      <div id="suggestions" class="suggestions hidden"></div>
     </div>
 
     <div class="links">
@@ -284,6 +393,7 @@
   <div class="footer">STUDIUM</div>
 
   <script>
+    // ===== CLOCK & GREETING =====
     function updateClock() {
       const now = new Date();
       const h = String(now.getHours()).padStart(2, '0');
@@ -301,17 +411,252 @@
     updateGreeting();
     setInterval(updateClock, 10000);
 
+    // ===== NAVIGATION =====
     function navigate(value) {
+      hideSuggestions();
+      
+      // Handle Google search fallback
+      if (value.startsWith('Search Google for ')) {
+        const query = value.replace('Search Google for "', '').replace('"', '');
+        value = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        saveSearchHistory(query);
+      }
+      // Save to search history (only if it's a search query, not a URL)
+      else if (value && !value.startsWith('http') && value.length > 2) {
+        saveSearchHistory(value);
+        value = `https://www.google.com/search?q=${encodeURIComponent(value)}`;
+      }
+      
       window.parent.postMessage({ type: 'NAVIGATE', url: value }, '*');
     }
 
-    document.getElementById('search').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') navigate(this.value);
+    // Save search to history
+    function saveSearchHistory(query) {
+      const searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+      
+      // Remove if already exists (to move to top)
+      const index = searchHistory.indexOf(query);
+      if (index > -1) {
+        searchHistory.splice(index, 1);
+      }
+      
+      // Add to beginning
+      searchHistory.unshift(query);
+      
+      // Keep only last 20 searches
+      if (searchHistory.length > 20) {
+        searchHistory.splice(20);
+      }
+      
+      localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+    }
+
+    // ===== SEARCH SUGGESTIONS =====
+    const searchInput = document.getElementById('search');
+    const suggestionsDiv = document.getElementById('suggestions');
+    let debounceTimer;
+    let selectedIndex = -1;
+    let currentSuggestions = [];
+
+    // Debounced search function
+    function debounceSearch(query) {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchSuggestions(query);
+      }, 200); // 200ms delay
+    }
+
+    // Fetch suggestions from local study-focused database
+    function fetchSuggestions(query) {
+      if (query.length < 2) {
+        hideSuggestions();
+        return;
+      }
+
+      // Study-focused search suggestions
+      const studySuggestions = [
+        // Programming & Computer Science
+        'javascript tutorial', 'python tutorial', 'react documentation', 'node.js guide',
+        'data structures', 'algorithms', 'machine learning', 'artificial intelligence',
+        'web development', 'frontend development', 'backend development', 'full stack',
+        'leetcode problems', 'hackerrank', 'codeforces', 'github repository',
+        
+        // Academic & Research
+        'research papers', 'academic journals', 'scholar articles', 'citation manager',
+        'literature review', 'thesis writing', 'dissertation help', 'academic writing',
+        'plagiarism checker', 'reference manager', 'bibliography generator',
+        
+        // Study Tools
+        'note taking app', 'flashcard maker', 'mind mapping tool', 'pomodoro timer',
+        'study planner', 'time management', 'focus techniques', 'concentration tips',
+        
+        // Online Learning
+        'coursera courses', 'edx online', 'udemy tutorial', 'khan academy',
+        'mit opencourseware', 'stanford online', 'youtube education', 'online lectures',
+        
+        // Science & Math
+        'calculus help', 'linear algebra', 'physics problems', 'chemistry equations',
+        'biology notes', 'statistics tutorial', 'probability theory', 'math formulas',
+        
+        // Common Searches
+        'google scholar', 'wikipedia', 'stack overflow', 'reddit study',
+        'quora questions', 'medium articles', 'dev blog', 'tutorial point'
+      ];
+
+      // Get search history from localStorage
+      const searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+      
+      // Combine and filter suggestions
+      const allSuggestions = [...searchHistory, ...studySuggestions];
+      const filteredSuggestions = allSuggestions
+        .filter(suggestion => 
+          suggestion.toLowerCase().includes(query.toLowerCase())
+        )
+        .slice(0, 7); // Limit to 7 local suggestions
+
+      // Add Google search fallback if no exact matches
+      if (filteredSuggestions.length === 0 || !filteredSuggestions.some(s => s.toLowerCase() === query.toLowerCase())) {
+        filteredSuggestions.push(`Search Google for "${query}"`);
+      }
+
+      displaySuggestions(filteredSuggestions, query);
+    }
+
+    // Display suggestions in dropdown
+    function displaySuggestions(suggestions, query) {
+      currentSuggestions = suggestions;
+      selectedIndex = -1;
+
+      if (suggestions.length === 0) {
+        hideSuggestions();
+        return;
+      }
+
+      const html = suggestions.map((suggestion, index) => {
+        const highlightedText = highlightMatch(suggestion, query);
+        return `
+          <div class="suggestion-item" data-index="${index}" data-suggestion="${suggestion}">
+            <span class="suggestion-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <span class="suggestion-text">${highlightedText}</span>
+          </div>
+        `;
+      }).join('');
+
+      suggestionsDiv.innerHTML = html;
+      suggestionsDiv.classList.remove('hidden');
+
+      // Add click listeners
+      suggestionsDiv.querySelectorAll('.suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+          navigate(item.dataset.suggestion);
+        });
+      });
+    }
+
+    // Highlight matching part of suggestion
+    function highlightMatch(text, query) {
+      const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+      return text.replace(regex, '<span class="suggestion-highlight">$1</span>');
+    }
+
+    // Escape regex special characters
+    function escapeRegex(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // Hide suggestions dropdown
+    function hideSuggestions() {
+      suggestionsDiv.classList.add('hidden');
+      currentSuggestions = [];
+      selectedIndex = -1;
+    }
+
+    // Update selected suggestion highlighting
+    function updateSelection() {
+      const items = suggestionsDiv.querySelectorAll('.suggestion-item');
+      items.forEach((item, index) => {
+        item.classList.toggle('selected', index === selectedIndex);
+      });
+    }
+
+    // ===== EVENT LISTENERS =====
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.trim();
+      if (query) {
+        debounceSearch(query);
+      } else {
+        hideSuggestions();
+      }
     });
 
-    document.querySelectorAll('.link').forEach(function(link) {
-      link.addEventListener('click', function() { navigate(link.dataset.url); });
+    searchInput.addEventListener('keydown', (e) => {
+      const items = suggestionsDiv.querySelectorAll('.suggestion-item');
+
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault();
+          if (selectedIndex >= 0 && items[selectedIndex]) {
+            navigate(items[selectedIndex].dataset.suggestion);
+          } else {
+            navigate(searchInput.value);
+          }
+          break;
+
+        case 'ArrowDown':
+          e.preventDefault();
+          if (items.length > 0) {
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+            updateSelection();
+          }
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          if (items.length > 0) {
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateSelection();
+          }
+          break;
+
+        case 'Escape':
+          hideSuggestions();
+          searchInput.blur();
+          break;
+      }
     });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrap')) {
+        hideSuggestions();
+      }
+    });
+
+    // Quick links navigation
+    document.querySelectorAll('.link').forEach(function(link) {
+      link.addEventListener('click', function() { 
+        navigate(link.dataset.url); 
+      });
+    });
+
+    // Listen for theme changes from parent
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'THEME_CHANGE') {
+        const isDark = event.data.isDark;
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    });
+
+    // Request current theme from parent
+    window.parent.postMessage({ type: 'REQUEST_THEME' }, '*');
   </script>
 
 </body>

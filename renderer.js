@@ -23,9 +23,66 @@ let studyMode = false;
 let sshProfiles = [];
 let editingProfileId = null;
 let sshFeaturesEnabled = false;
+let darkMode = false;
 
 /* ---------- INIT ---------- */
 window.addEventListener("DOMContentLoaded", () => {
+  // Critical initialization - load immediately
+  loadTheme();
+  
+  // Initialize tabs quickly
+  if (hasPreviousSession()) {
+    document.getElementById("restore-bar").style.display = "flex";
+    tabs = [{
+      url: NEW_TAB,
+      title: "New Tab",
+      lastActive: Date.now(),
+      discarded: false,
+      isLoading: false
+    }];
+    activeTabIndex = 0;
+    renderTabs();
+    loadActiveTab();
+  } else {
+    restoreSession();
+    renderTabs();
+    loadActiveTab();
+  }
+
+  // Defer non-critical initialization
+  setTimeout(() => {
+    initializeUI();
+    initializeSSH();
+    
+    // Auto-hide restore bar after 5 seconds
+    if (hasPreviousSession()) {
+      setTimeout(() => {
+        dismissRestoreBar();
+      }, 5000);
+    }
+    
+    // Load theme preference
+    loadTheme();
+  
+    // Listen for theme requests from iframe
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'REQUEST_THEME') {
+        const iframe = document.querySelector("#content iframe");
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({
+            type: 'THEME_CHANGE',
+            isDark: darkMode
+          }, '*');
+        }
+      }
+    });
+    
+    // Start background tasks
+    setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
+  }, 100);
+});
+
+function initializeUI() {
   const studyIndicator = document.getElementById("study-indicator");
   if (studyIndicator) {
     studyIndicator.addEventListener("click", () => {
@@ -47,16 +104,16 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const settingsClose = document.getElementById("settings-close");
-  const settingsBackdrop = document.querySelector(
-    "#settings-modal .modal-backdrop"
-  );
+  const settingsBackdrop = document.querySelector("#settings-modal .modal-backdrop");
   if (settingsClose) {
     settingsClose.addEventListener("click", closeSettings);
   }
   if (settingsBackdrop) {
     settingsBackdrop.addEventListener("click", closeSettings);
   }
+}
 
+function initializeSSH() {
   const sshToggle = document.getElementById("ssh-features-toggle");
   sshFeaturesEnabled = loadSSHFeaturesEnabled();
   if (sshToggle) {
@@ -74,9 +131,7 @@ window.addEventListener("DOMContentLoaded", () => {
   applySSHFeatureState();
 
   const sshModalClose = document.getElementById("ssh-profiles-close");
-  const sshModalBackdrop = document.querySelector(
-    "#ssh-profiles-modal .modal-backdrop"
-  );
+  const sshModalBackdrop = document.querySelector("#ssh-profiles-modal .modal-backdrop");
   if (sshModalClose) {
     sshModalClose.addEventListener("click", closeSSHProfiles);
   }
@@ -98,44 +153,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   const sshCancelBtn = document.getElementById("ssh-cancel-profile");
-  if (sshCancelBtn) {
-    sshCancelBtn.addEventListener("click", () => {
-      showSSHProfilesListView();
-    });
-  }
-
   const sshSaveBtn = document.getElementById("ssh-save-profile");
+  if (sshCancelBtn) {
+    sshCancelBtn.addEventListener("click", closeSSHProfileForm);
+  }
   if (sshSaveBtn) {
     sshSaveBtn.addEventListener("click", saveSSHProfileFromForm);
   }
-
-  if (hasPreviousSession()) {
-    document.getElementById("restore-bar").style.display = "flex";
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      dismissRestoreBar();
-    }, 5000);
-
-    // Start with a clean New Tab until user decides
-    tabs = [{
-      url: NEW_TAB,
-      title: "New Tab",
-      lastActive: Date.now(),
-      discarded: false
-    }];
-    activeTabIndex = 0;
-
-    renderTabs();
-    loadActiveTab();
-  } else {
-    restoreSession();   // normal flow
-    renderTabs();
-    loadActiveTab();
-  }
-
-  setInterval(discardInactiveTabs, DISCARD_CHECK_INTERVAL);
-});
+}
 
 /* ---------- CORE LOADER ---------- */
 function loadActiveTab() {
@@ -155,6 +180,7 @@ function loadActiveTab() {
 function loadNewTab() {
 
   tabs[activeTabIndex].title = "New Tab";
+  setTabLoading(activeTabIndex, false);
   renderTabs();
 
   const content = document.getElementById("content");
@@ -168,6 +194,9 @@ function loadNewTab() {
 
 
 function loadWebURL(url) {
+  const tabIndex = activeTabIndex;
+  setTabLoading(tabIndex, true);
+
   const content = document.getElementById("content");
 
   content.innerHTML = `
@@ -181,7 +210,10 @@ function loadWebURL(url) {
 
   const webview = document.getElementById("view");
 
-  if (!webview) return;
+  if (!webview) {
+    setTabLoading(tabIndex, false);
+    return;
+  }
 
   // Update title when page title changes
   webview.addEventListener("page-title-updated", (e) => {
@@ -201,8 +233,25 @@ function loadWebURL(url) {
 
   // Keep the tab URL in sync when navigation occurs
   webview.addEventListener("will-navigate", (e) => {
-    tabs[activeTabIndex].url = e.url;
+    if (!tabs[tabIndex]) return;
+    const nextURL = e.url;
+    tabs[tabIndex].url = nextURL;
+    setTabLoading(tabIndex, true);
+    webview.loadURL(nextURL);
     saveSession();
+    renderTabs();
+  });
+
+  webview.addEventListener("did-start-loading", () => {
+    setTabLoading(tabIndex, true);
+  });
+
+  webview.addEventListener("did-stop-loading", () => {
+    setTabLoading(tabIndex, false);
+  });
+
+  webview.addEventListener("did-fail-load", () => {
+    setTabLoading(tabIndex, false);
   });
 
   // DOM ready: override window.open and catch _blank links inside the page
@@ -243,6 +292,14 @@ function loadWebURL(url) {
 }
 
 /* ---------- TABS ---------- */
+
+function setTabLoading(index, isLoading) {
+  const tab = tabs[index];
+  if (!tab) return;
+  if (tab.isLoading === isLoading) return;
+  tab.isLoading = isLoading;
+  renderTabs();
+}
 
 function discardInactiveTabs() {
   const now = Date.now();
@@ -289,18 +346,24 @@ function renderTabs() {
 
     title.onclick = () => switchTab(index);
 
-    const discardBtn = document.createElement("span");
-    discardBtn.className = "discard";
-    discardBtn.innerText = "\uD83E\uDDCA";
-    if (index === activeTabIndex) {
-      discardBtn.classList.add("disabled");
-      discardBtn.title = "Cannot discard active tab";
+    const status = document.createElement("span");
+    status.className = "status";
+    if (tabs[index].isLoading) {
+      status.classList.add("loading");
+      status.title = "Loading...";
+      status.setAttribute("aria-label", "Loading");
     } else {
-      discardBtn.title = "Discard tab";
-      discardBtn.onclick = (e) => {
-        e.stopPropagation();
-        discardTab(index);
-      };
+      status.innerText = "\uD83E\uDDCA";
+      if (index === activeTabIndex) {
+        status.classList.add("disabled");
+        status.title = "Cannot discard active tab";
+      } else {
+        status.title = "Discard tab";
+        status.onclick = (e) => {
+          e.stopPropagation();
+          discardTab(index);
+        };
+      }
     }
 
     const close = document.createElement("span");
@@ -312,10 +375,20 @@ function renderTabs() {
     };
 
     tab.appendChild(title);
-    tab.appendChild(discardBtn);
+    tab.appendChild(status);
     tab.appendChild(close);
     tabsDiv.appendChild(tab);
   });
+
+  // Add New Tab button inside tabs container if not at max capacity
+  if (tabs.length < MAX_TABS) {
+    const newTabBtn = document.createElement("button");
+    newTabBtn.className = "new-tab-btn";
+    newTabBtn.innerText = "+";
+    newTabBtn.onclick = () => newTab();
+    newTabBtn.title = "New Tab (Ctrl+T)";
+    tabsDiv.appendChild(newTabBtn);
+  }
 
   document.getElementById("tab-info").innerText =
     `Tabs: ${tabs.length} / ${MAX_TABS}`;
@@ -331,7 +404,8 @@ tabs.push({
   url: NEW_TAB,
   title: "New Tab",
   lastActive: Date.now(),
-  discarded: false
+  discarded: false,
+  isLoading: false
 });
 activeTabIndex = tabs.length - 1;
 
@@ -414,6 +488,7 @@ function openPDF() {
 ipcRenderer.on("load-pdf", (_, pdfPath) => {
   tabs[activeTabIndex].url = `file://${pdfPath}`;
   tabs[activeTabIndex].title = "PDF: " + pdfPath.split("\\").pop();
+  setTabLoading(activeTabIndex, true);
   loadActiveTab();
 });
 
@@ -494,6 +569,89 @@ function toggleReaderMode() {
   } else {
     // DISABLE reader mode → reload page cleanly
     webview.reload();
+  }
+}
+
+function toggleTheme() {
+  darkMode = !darkMode;
+  
+  const themeBtn = document.getElementById("theme-btn");
+  if (themeBtn) {
+    themeBtn.classList.toggle("active", darkMode);
+    
+    // Update icon
+    const svg = themeBtn.querySelector("svg");
+    if (darkMode) {
+      // Moon icon
+      svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    } else {
+      // Sun icon
+      svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    }
+  }
+  
+  // Update logo
+  const logo = document.getElementById("browser-logo");
+  if (logo) {
+    if (darkMode) {
+      logo.src = "img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
+      logo.style.filter = "invert(1) hue-rotate(180deg)";
+    } else {
+      logo.src = "img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
+      logo.style.filter = "none";
+    }
+  }
+  
+  if (darkMode) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+  
+  // Communicate theme change to iframe
+  const iframe = document.querySelector("#content iframe");
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.postMessage({
+      type: 'THEME_CHANGE',
+      isDark: darkMode
+    }, '*');
+  }
+  
+  // Save theme preference
+  localStorage.setItem("theme", darkMode ? "dark" : "light");
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem("theme");
+  darkMode = savedTheme === "dark";
+  
+  if (darkMode) {
+    document.documentElement.classList.add("dark");
+  }
+  
+  const themeBtn = document.getElementById("theme-btn");
+  if (themeBtn) {
+    themeBtn.classList.toggle("active", darkMode);
+    
+    // Update icon
+    const svg = themeBtn.querySelector("svg");
+    if (darkMode) {
+      // Moon icon
+      svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    } else {
+      // Sun icon
+      svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    }
+  }
+  
+  // Update logo on startup
+  const logo = document.getElementById("browser-logo");
+  if (logo) {
+    if (darkMode) {
+      logo.style.filter = "invert(1) hue-rotate(180deg)";
+    } else {
+      logo.style.filter = "none";
+    }
   }
 }
 
@@ -897,7 +1055,8 @@ function restoreSession() {
       url: NEW_TAB,
       title: "New Tab",
       lastActive: Date.now(),
-      discarded: false
+      discarded: false,
+      isLoading: false
     }];
     activeTabIndex = 0;
     return;
@@ -911,7 +1070,10 @@ function restoreSession() {
     url: t.url,
     title: t.title,
     lastActive: Date.now(),
-    discarded: index !== activeIndex  // Only discard non-active tabs
+    discarded: AUTO_DISCARD_ENABLED
+      ? index !== activeIndex
+      : false,
+    isLoading: false
   }));
 
   activeTabIndex = activeIndex;
