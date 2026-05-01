@@ -1,0 +1,2 @@
+Place your Windows installer here and rename it to:
+Studium-Setup.exe

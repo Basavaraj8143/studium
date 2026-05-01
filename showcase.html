@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studium Browser — Lightweight Browser for Study Sessions</title>
+  <meta
+    name="description"
+    content="Studium is a lightweight browser built for PDF-heavy study sessions with predictable memory usage and intentional browsing controls."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="showcase.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#top" aria-label="Studium home">
+        <img src="img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="Studium logo" />
+        <span>Studium</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#performance">Performance</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#download">Download</a>
+      </nav>
+
+      <a class="btn btn-primary btn-sm" data-download-link href="#">Download for Windows</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero section">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">Final Year Project · Desktop Browser</p>
+          <h1>Study faster with a browser built for focus, not clutter.</h1>
+          <p class="hero-subtext">
+            Studium is a lightweight browser designed for PDF-heavy academic workflows.
+            Predictable memory usage, intentional tab limits, and distraction-free reading in one clean desktop app.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" data-download-link href="#">Download .exe</a>
+            <a class="btn btn-secondary" href="#features">Explore Features</a>
+          </div>
+
+          <div class="meta-list">
+            <div class="meta-item">
+              <span class="meta-value">~2× lower RAM</span>
+              <span class="meta-label">than Edge in same PDF scenario</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-value">5-tab hard limit</span>
+              <span class="meta-label">for controlled memory usage</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-value">Windows build</span>
+              <span class="meta-label">ready for direct install</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="product-frame">
+            <div class="frame-top">
+              <span></span><span></span><span></span>
+            </div>
+            <img
+              src="evidence/notfrezed.png"
+              alt="Studium browser interface screenshot"
+            />
+          </div>
+          <p class="visual-caption">Real screenshot from Studium test build</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Features</p>
+          <h2>Everything needed for focused study sessions</h2>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <h3>Local PDF Viewer</h3>
+            <p>Open and read PDFs directly in the browser with reduced overhead.</p>
+          </article>
+          <article class="feature-card reveal">
+            <h3>Study Mode</h3>
+            <p>Remove non-essential UI and keep your attention on content.</p>
+          </article>
+          <article class="feature-card reveal">
+            <h3>Reader Mode</h3>
+            <p>Clean article pages by reducing sidebars, ads, and visual noise.</p>
+          </article>
+          <article class="feature-card reveal">
+            <h3>Tab Discipline</h3>
+            <p>Hard cap of 5 tabs to avoid memory spikes and browser bloat.</p>
+          </article>
+          <article class="feature-card reveal">
+            <h3>Session Restore</h3>
+            <p>Recover your study context when needed, without forced restoration.</p>
+          </article>
+          <article class="feature-card reveal">
+            <h3>Keyboard Shortcuts</h3>
+            <p>Fast controls for tab actions, modes, navigation, and opening PDFs.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="performance" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Performance Proof</p>
+          <h2>Measured against mainstream browsers</h2>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card reveal">
+            <p class="stat-value">~210–230 MB</p>
+            <p class="stat-label">Idle memory (Studium)</p>
+          </article>
+          <article class="stat-card reveal">
+            <p class="stat-value">~380–400 MB</p>
+            <p class="stat-label">Idle memory (Edge)</p>
+          </article>
+          <article class="stat-card reveal">
+            <p class="stat-value">~300–320 MB</p>
+            <p class="stat-label">Mixed tabs + PDF workflow (Studium)</p>
+          </article>
+          <article class="stat-card reveal">
+            <p class="stat-value">~800+ MB</p>
+            <p class="stat-label">Mixed tabs + PDF workflow (Edge)</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="section">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Screenshots</p>
+          <h2>Interface and benchmark evidence</h2>
+        </div>
+
+        <div class="gallery-grid">
+          <figure class="shot reveal">
+            <img src="evidence/notfrezed.png" alt="Studium tabs active view" />
+            <figcaption>Active tabs view</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="evidence/whenfrezed.png" alt="Studium tab discard state" />
+            <figcaption>Discarded tab state</figcaption>
+          </figure>
+          <figure class="shot reveal">
+            <img src="evidence/same_pdf_on_edge_and_studium.png" alt="RAM comparison screenshot" />
+            <figcaption>Same PDF memory comparison</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="download" class="section download-section">
+      <div class="container download-card reveal">
+        <p class="eyebrow">Get Studium</p>
+        <h2>Download the latest Windows build</h2>
+        <p class="download-subtext">
+          Replace the configured download path with your final installer file and publish this page.
+          All download buttons on this page are automatically linked from one config in <code>showcase.js</code>.
+        </p>
+
+        <div class="download-actions">
+          <a class="btn btn-primary" data-download-link href="#">Download Studium Setup (.exe)</a>
+          <a class="btn btn-secondary" href="#top">Back to top</a>
+        </div>
+
+        <p class="download-hint">
+          Default file target: <code>downloads/Studium-Setup.exe</code>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <p>© <span id="year"></span> Studium</p>
+      <p>Built for focused, low-RAM academic browsing.</p>
+    </div>
+  </footer>
+
+  <script src="showcase.js"></script>
+</body>
+</html>
