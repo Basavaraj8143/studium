@@ -475,6 +475,38 @@ body {
   flex-wrap: wrap;
 }
 
+.download-versions {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.download-versions p {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.download-versions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.download-versions li a {
+  color: #a5d8ff;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.download-versions li a:hover {
+  color: #fff;
+}
+
 .download-hint {
   margin-top: 16px;
   color: var(--text-soft);
