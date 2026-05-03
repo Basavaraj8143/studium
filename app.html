@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Studium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- Top Bar -->
+  <div id="top-bar">
+
+    <img id="browser-logo" src="img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="Studium" />
+
+    <!-- Back -->
+    <button class="nav-btn" onclick="goBack()" title="Back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <!-- Forward -->
+    <button class="nav-btn" onclick="goForward()" title="Forward">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+    <input id="url" placeholder="Search or enter URL" />
+
+    <!-- Go -->
+    <button class="action-btn" onclick="loadURL()" title="Go">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+      Go
+    </button>
+
+    <!-- Open PDF -->
+    <button class="action-btn" onclick="openPDF()" title="Open PDF">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+      PDF
+    </button>
+
+    <!-- Study Mode -->
+    <button class="action-btn" id="study-btn" onclick="toggleStudyMode()" title="Study Mode (Ctrl+Shift+S)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      Study
+    </button>
+
+    <!-- Reader Mode -->
+    <button class="action-btn" id="reader-btn" onclick="toggleReaderMode()" title="Reader Mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      </svg>
+      Reader
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="action-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle Theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      Theme
+    </button>
+
+    <!-- Menu -->
+    <div id="menu-container">
+      <button id="menu-btn" type="button" aria-label="Menu">&#8942;</button>
+      <div id="menu" class="menu hidden" role="menu">
+        <div class="menu-item has-submenu" role="menuitem" aria-haspopup="true">
+          <span>Advanced</span>
+          <span>&#9656;</span>
+          <div class="submenu" role="menu">
+            <button class="menu-item disabled" id="menu-ssh-profiles" type="button" aria-disabled="true" onclick="openSSHProfiles()">SSH Profiles</button>
+            <button class="menu-item disabled" id="menu-ssh-terminal" type="button" aria-disabled="true" onclick="openSSHInfo()">SSH Terminal</button>
+          </div>
+        </div>
+        <div class="menu-separator"></div>
+        <button class="menu-item" id="menu-settings" type="button" onclick="openSettings()">Settings</button>
+        <button class="menu-item" type="button">About Studium</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Session Bar -->
+  <div id="restore-bar">
+    <span id="restore-text">Restore previous session?</span>
+    <button onclick="restorePreviousSession()">Restore</button>
+    <button onclick="startFresh()">Start Fresh</button>
+    <button onclick="dismissRestoreBar()" style="margin-left:auto; background:none; border:none; font-size:18px; cursor:pointer; color:#92400e;">&#215;</button>
+  </div>
+
+  <!-- Study Mode Indicator -->
+  <button id="study-indicator" type="button" aria-label="Exit Study Mode">
+    Study Mode
+    <span class="light" aria-hidden="true"></span>
+  </button>
+
+  <!-- Tab Bar -->
+  <div id="tabs-bar">
+    <div id="tabs"></div>
+    <span id="tab-info">1 / 5</span>
+  </div>
+
+  <!-- Content -->
+  <div id="content"></div>
+
+  <!-- SSH Profiles Modal -->
+  <div id="ssh-profiles-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-action="close-ssh-profiles"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="ssh-profiles-title">
+      <div class="modal-header">
+        <h2 id="ssh-profiles-title">SSH Profiles</h2>
+        <button class="icon-btn" id="ssh-profiles-close" type="button" aria-label="Close">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div id="ssh-profiles-list-view">
+          <div id="ssh-profiles-empty" class="empty-state hidden">
+            <div>No SSH profiles found</div>
+            <button class="btn" id="ssh-add-profile">+ Add New Profile</button>
+            <div class="muted">SSH is an advanced feature. Enable it in Settings first.</div>
+          </div>
+          <div id="ssh-profiles-list" class="profile-list hidden"></div>
+          <div class="section-divider"></div>
+          <button class="btn" id="ssh-add-profile-bottom">+ Add New Profile</button>
+        </div>
+
+        <div id="ssh-profiles-form-view" class="hidden">
+          <div class="form-grid">
+            <div class="field">
+              <label for="ssh-profile-name">Profile Name *</label>
+              <input id="ssh-profile-name" type="text" placeholder="College Linux VM" />
+            </div>
+            <div class="field">
+              <label for="ssh-profile-host">Host *</label>
+              <input id="ssh-profile-host" type="text" placeholder="192.168.1.10" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="ssh-profile-port">Port</label>
+                <input id="ssh-profile-port" type="number" min="1" max="65535" placeholder="22" />
+              </div>
+              <div class="field">
+                <label for="ssh-profile-username">Username *</label>
+                <input id="ssh-profile-username" type="text" placeholder="student" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Authentication</label>
+              <div class="radio-group">
+                <label><input id="ssh-auth-key" type="radio" name="ssh-auth" value="ssh-key" checked /> <span>SSH Key</span></label>
+                <label><input id="ssh-auth-password" type="radio" name="ssh-auth" value="password" disabled /> <span>Password (disabled)</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="ssh-profile-keypath">Private Key Path</label>
+              <input id="ssh-profile-keypath" type="text" placeholder="C:/Users/.../id_rsa" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-ghost" id="ssh-cancel-profile" type="button">Cancel</button>
+            <button class="btn btn-primary" id="ssh-save-profile" type="button">Save Profile</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" data-action="close-settings"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <h2 id="settings-title">Settings</h2>
+        <button class="icon-btn" id="settings-close" type="button" aria-label="Close">&#215;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-row">
+          <div>
+            <div class="settings-title">SSH Features (Experimental)</div>
+            <div class="muted">Disabled by default to conserve memory. No processes start until enabled.</div>
+          </div>
+          <label class="switch">
+            <input id="ssh-features-toggle" type="checkbox" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

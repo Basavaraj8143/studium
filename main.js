@@ -14,7 +14,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile("index.html");
+  win.loadFile("app.html");
 }
 
 ipcMain.on("open-pdf", async () => {
