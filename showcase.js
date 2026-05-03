@@ -1,6 +1,6 @@
 // Set your final installer file path here once your .exe is ready.
 // Example: "./downloads/Studium-Setup-v1.0.1.exe"
-const DOWNLOAD_FILE_PATH = "https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0/Studium.Setup.1.0.1.exe";
+const DOWNLOAD_FILE_PATH = "https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0.1/Studium.Setup.1.0.1.exe";
 
 function wireDownloadLinks() {
   const links = document.querySelectorAll("[data-download-link]");
