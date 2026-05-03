@@ -49,7 +49,9 @@ Every feature in Studium exists because a real student problem demanded it.
 | 🔒 Tab limiter | Hard cap of 5 tabs prevents RAM overload and enforces intentional browsing |
 | 🗂️ New tab page | Custom local new tab with search and quick links, isolated from webview |
 | ⚡ Memory cleanup | Releases memory after PDF close — no background rendering leaks |
-
+| 🔲 Tab Discipline | Hard cap of 5 tabs to avoid memory spikes and browser bloat |
+| 🔄 Session Restore | Recover your study context when needed, without forced restoration |
+| ⌨️ Keyboard Shortcuts | Fast controls for tab actions, modes, navigation, and opening PDFs
 ---
 
 ## Download
