@@ -1,4 +1,5 @@
 const { app, BrowserWindow, dialog, ipcMain } = require("electron");
+const path = require("path");
 
 let win;
 
@@ -14,7 +15,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile("app.html");
+  win.loadFile(path.join(__dirname, "../renderer/pages/app.html"));
 }
 
 ipcMain.on("open-pdf", async () => {

@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Lightweight desktop browser optimized for focused PDF study sessions.",
   "author": "Basavaraj",
-  "main": "main.js",
+  "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder"

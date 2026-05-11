@@ -186,7 +186,7 @@ function loadNewTab() {
   const content = document.getElementById("content");
   content.innerHTML = `
     <iframe
-      src="./pages/newtab.html"
+      src="./newtab.html"
       style="width:100%; height:100%; border:none;">
     </iframe>
   `;
@@ -594,10 +594,10 @@ function toggleTheme() {
   const logo = document.getElementById("browser-logo");
   if (logo) {
     if (darkMode) {
-      logo.src = "img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
+      logo.src = "../../../assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
       logo.style.filter = "invert(1) hue-rotate(180deg)";
     } else {
-      logo.src = "img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
+      logo.src = "../../../assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
       logo.style.filter = "none";
     }
   }
@@ -1070,9 +1070,7 @@ function restoreSession() {
     url: t.url,
     title: t.title,
     lastActive: Date.now(),
-    discarded: AUTO_DISCARD_ENABLED
-      ? index !== activeIndex
-      : false,
+    discarded: index !== activeIndex,
     isLoading: false
   }));
 
