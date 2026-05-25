@@ -1,9 +1,11 @@
-const { ipcRenderer } = require("electron");
+(function () {
+  if (window.__studiumRendererInitialized) return;
+  window.__studiumRendererInitialized = true;
 
+  const electronAPI = window.electronAPI;
 
-
-const DISCARD_AFTER_MS = 5 * 60 * 1000; // 5 minutes
-const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s
+  const DISCARD_AFTER_MS = 5 * 60 * 1000; // 5 minutes
+  const DISCARD_CHECK_INTERVAL = 30 * 1000; // check every 30s
 
 /* ---------- CONSTANTS ---------- */
 const MAX_TABS = 5;
@@ -14,6 +16,7 @@ const SSH_FEATURES_ENABLED_KEY = "ssh_features_enabled";
 /* ---------- STATE ---------- */
 let tabs = [];
 let activeTabIndex = 0;
+let tabContainers = new Map(); // tabId -> DOM element
 let isPDFOpen = false;
 let readerMode = false;
 let restoreBarDisplayBeforeStudy = null;
@@ -32,8 +35,12 @@ window.addEventListener("DOMContentLoaded", () => {
   
   // Initialize tabs quickly
   if (hasPreviousSession()) {
-    document.getElementById("restore-bar").style.display = "flex";
+    const restoreBar = document.getElementById("restore-bar");
+    if (restoreBar) restoreBar.style.display = "flex";
+    
+    const id = "tab-" + Date.now();
     tabs = [{
+      id: id,
       url: NEW_TAB,
       title: "New Tab",
       lastActive: Date.now(),
@@ -61,18 +68,19 @@ window.addEventListener("DOMContentLoaded", () => {
       }, 5000);
     }
     
-    // Load theme preference
-    loadTheme();
-  
     // Listen for theme requests from iframe
     window.addEventListener('message', function(event) {
       if (event.data.type === 'REQUEST_THEME') {
-        const iframe = document.querySelector("#content iframe");
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.postMessage({
-            type: 'THEME_CHANGE',
-            isDark: darkMode
-          }, '*');
+        const activeTab = tabs[activeTabIndex];
+        if (activeTab && tabContainers.has(activeTab.id)) {
+          const container = tabContainers.get(activeTab.id);
+          const iframe = container.querySelector("iframe");
+          if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({
+              type: 'THEME_CHANGE',
+              isDark: darkMode
+            }, '*');
+          }
         }
       }
     });
@@ -110,6 +118,16 @@ function initializeUI() {
   }
   if (settingsBackdrop) {
     settingsBackdrop.addEventListener("click", closeSettings);
+  }
+
+  // Focus URL bar on load
+  const urlInput = document.getElementById("url");
+  if (urlInput) {
+    urlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        loadURL();
+      }
+    });
   }
 }
 
@@ -164,27 +182,68 @@ function initializeSSH() {
 
 /* ---------- CORE LOADER ---------- */
 function loadActiveTab() {
-
-  tabs[activeTabIndex].lastActive = Date.now();
   const tab = tabs[activeTabIndex];
   if (!tab) return;
 
-  if (tab.url === NEW_TAB) {
-    loadNewTab();
+  tab.lastActive = Date.now();
+  
+  // Update URL bar
+  const urlInput = document.getElementById("url");
+  if (urlInput) {
+    urlInput.value = tab.url === NEW_TAB ? "" : tab.url;
+  }
+
+  // Manage tab containers
+  const content = document.getElementById("content");
+  if (!content) return;
+  
+  // Hide all containers
+  tabContainers.forEach((container) => {
+    container.style.display = "none";
+  });
+
+  let container;
+  if (tabContainers.has(tab.id)) {
+    container = tabContainers.get(tab.id);
+    container.style.display = "block";
+    
+    const existingWebview = container.querySelector("webview");
+    if (!existingWebview) {
+      if (tab.url === NEW_TAB) {
+        loadNewTabContainer(container);
+      } else {
+        loadWebURLContainer(container, tab.url, activeTabIndex);
+      }
+    } else if (tab.discarded) {
+      tab.discarded = false;
+      existingWebview.loadURL(tab.url);
+    }
   } else {
-    loadWebURL(tab.url);
+    // Create new container
+    container = document.createElement("div");
+    container.className = "tab-content-container";
+    container.style.width = "100%";
+    container.style.height = "100%";
+    content.appendChild(container);
+    tabContainers.set(tab.id, container);
+    
+    if (tab.url === NEW_TAB) {
+      loadNewTabContainer(container);
+    } else {
+      loadWebURLContainer(container, tab.url, activeTabIndex);
+    }
   }
 }
 
 /* ---------- UI LOADERS ---------- */
-function loadNewTab() {
-
-  tabs[activeTabIndex].title = "New Tab";
-  setTabLoading(activeTabIndex, false);
+function loadNewTabContainer(container) {
+  const tabIndex = activeTabIndex;
+  if (!tabs[tabIndex]) return;
+  tabs[tabIndex].title = "New Tab";
+  setTabLoading(tabIndex, false);
   renderTabs();
 
-  const content = document.getElementById("content");
-  content.innerHTML = `
+  container.innerHTML = `
     <iframe
       src="./newtab.html"
       style="width:100%; height:100%; border:none;">
@@ -192,23 +251,21 @@ function loadNewTab() {
   `;
 }
 
-
-function loadWebURL(url) {
-  const tabIndex = activeTabIndex;
+function loadWebURLContainer(container, url, tabIndex) {
   setTabLoading(tabIndex, true);
 
-  const content = document.getElementById("content");
-
-  content.innerHTML = `
+  const tabId = tabs[tabIndex].id;
+  container.innerHTML = `
     <webview
-      id="view"
+      id="view-${tabId}"
       src="${url}"
       style="width:100%; height:100%;"
+      allowpopups
       webpreferences="contextIsolation=no">
     </webview>
   `;
 
-  const webview = document.getElementById("view");
+  const webview = container.querySelector("webview");
 
   if (!webview) {
     setTabLoading(tabIndex, false);
@@ -217,41 +274,62 @@ function loadWebURL(url) {
 
   // Update title when page title changes
   webview.addEventListener("page-title-updated", (e) => {
-    tabs[activeTabIndex].title = e.title || "Untitled";
-    renderTabs();
+    const currentIdx = tabs.findIndex(t => t.id === tabId);
+    if (currentIdx !== -1) {
+      tabs[currentIdx].title = e.title || "Untitled";
+      renderTabs();
+    }
   });
 
   // Ensure links that would open a new window load in the same webview
   webview.addEventListener("new-window", (e) => {
     e.preventDefault();
-    const url = e.url;
-    tabs[activeTabIndex].url = url;
-    webview.loadURL(url);
-    saveSession();
-    renderTabs();
+    webview.loadURL(e.url);
   });
 
   // Keep the tab URL in sync when navigation occurs
-  webview.addEventListener("will-navigate", (e) => {
-    if (!tabs[tabIndex]) return;
-    const nextURL = e.url;
-    tabs[tabIndex].url = nextURL;
-    setTabLoading(tabIndex, true);
-    webview.loadURL(nextURL);
+  function updateTabURL(navigatedUrl) {
+    const currentIdx = tabs.findIndex(t => t.id === tabId);
+    if (currentIdx === -1) return;
+    tabs[currentIdx].url = navigatedUrl;
+    if (currentIdx === activeTabIndex) {
+      const urlInput = document.getElementById("url");
+      if (urlInput) urlInput.value = navigatedUrl;
+    }
     saveSession();
-    renderTabs();
+  }
+
+  webview.addEventListener("did-navigate", (e) => {
+    updateTabURL(e.url);
+  });
+
+  webview.addEventListener("will-navigate", (e) => {
+    updateTabURL(e.url);
+  });
+
+  webview.addEventListener("did-navigate-in-page", (e) => {
+    updateTabURL(e.url);
   });
 
   webview.addEventListener("did-start-loading", () => {
-    setTabLoading(tabIndex, true);
+    const currentIdx = tabs.findIndex(t => t.id === tabId);
+    if (currentIdx !== -1) setTabLoading(currentIdx, true);
   });
 
   webview.addEventListener("did-stop-loading", () => {
-    setTabLoading(tabIndex, false);
+    const currentIdx = tabs.findIndex(t => t.id === tabId);
+    if (currentIdx !== -1) {
+      setTabLoading(currentIdx, false);
+      const urlInput = document.getElementById("url");
+      if (currentIdx === activeTabIndex && urlInput) {
+        urlInput.value = webview.getURL();
+      }
+    }
   });
 
   webview.addEventListener("did-fail-load", () => {
-    setTabLoading(tabIndex, false);
+    const currentIdx = tabs.findIndex(t => t.id === tabId);
+    if (currentIdx !== -1) setTabLoading(currentIdx, false);
   });
 
   // DOM ready: override window.open and catch _blank links inside the page
@@ -310,19 +388,22 @@ function discardInactiveTabs() {
       !tab.discarded &&
       now - tab.lastActive > DISCARD_AFTER_MS
     ) {
-      tab.discarded = true;
-      console.log("Discarding tab:", tab.title);
+      discardTab(index);
     }
   });
-
-  renderTabs();
 }
 
 function discardTab(index) {
   if (index === activeTabIndex) return; // never discard active tab
 
-  tabs[index].discarded = true;
-  tabs[index].lastActive = Date.now();
+  const tab = tabs[index];
+  tab.discarded = true;
+  
+  // Clean up the container/webview to save memory
+  if (tabContainers.has(tab.id)) {
+    const container = tabContainers.get(tab.id);
+    container.innerHTML = "";
+  }
 
   renderTabs();
   saveSession();
@@ -330,38 +411,44 @@ function discardTab(index) {
 
 function renderTabs() {
   const tabsDiv = document.getElementById("tabs");
+  if (!tabsDiv) return;
   tabsDiv.innerHTML = "";
 
   tabs.forEach((_, index) => {
+    const tabData = tabs[index];
     const tab = document.createElement("div");
     tab.className = "tab" + (index === activeTabIndex ? " active" : "");
 
-    if (tabs[index].discarded) {
+    if (tabData.discarded) {
       tab.style.opacity = "0.6";
     }
 
     const title = document.createElement("span");
     title.className = "title";
-    title.innerText = tabs[index].title || `Tab ${index + 1}`;
+    title.innerText = tabData.title || ("Tab " + (index + 1));
 
     title.onclick = () => switchTab(index);
 
     const status = document.createElement("span");
     status.className = "status";
-    if (tabs[index].isLoading) {
+    if (tabData.isLoading) {
       status.classList.add("loading");
       status.title = "Loading...";
       status.setAttribute("aria-label", "Loading");
     } else {
-      status.innerText = "\uD83E\uDDCA";
+      status.innerText = tabData.discarded ? "\u2601\uFE0F" : "\uD83E\uDDCA"; // Cloud if discarded, Ice if ready
       if (index === activeTabIndex) {
         status.classList.add("disabled");
         status.title = "Cannot discard active tab";
       } else {
-        status.title = "Discard tab";
+        status.title = tabData.discarded ? "Reload tab" : "Discard tab (save memory)";
         status.onclick = (e) => {
           e.stopPropagation();
-          discardTab(index);
+          if (tabData.discarded) {
+            switchTab(index);
+          } else {
+            discardTab(index);
+          }
         };
       }
     }
@@ -390,8 +477,10 @@ function renderTabs() {
     tabsDiv.appendChild(newTabBtn);
   }
 
-  document.getElementById("tab-info").innerText =
-    `Tabs: ${tabs.length} / ${MAX_TABS}`;
+  const tabInfo = document.getElementById("tab-info");
+  if (tabInfo) {
+    tabInfo.innerText = "Tabs: " + tabs.length + " / " + MAX_TABS;
+  }
 }
 
 function newTab() {
@@ -400,14 +489,16 @@ function newTab() {
     return;
   }
 
-tabs.push({
-  url: NEW_TAB,
-  title: "New Tab",
-  lastActive: Date.now(),
-  discarded: false,
-  isLoading: false
-});
-activeTabIndex = tabs.length - 1;
+  const id = "tab-" + Date.now() + "-" + Math.floor(Math.random() * 1000);
+  tabs.push({
+    id: id,
+    url: NEW_TAB,
+    title: "New Tab",
+    lastActive: Date.now(),
+    discarded: false,
+    isLoading: false
+  });
+  activeTabIndex = tabs.length - 1;
 
   renderTabs();
   loadActiveTab();
@@ -420,10 +511,6 @@ function switchTab(index) {
   activeTabIndex = index;
   tabs[index].lastActive = Date.now();
 
-  if (tabs[index].discarded) {
-    tabs[index].discarded = false;
-  }
-
   renderTabs();
   loadActiveTab();
   saveSession();
@@ -431,8 +518,19 @@ function switchTab(index) {
 
 
 function closeTab(index) {
+  const tabId = tabs[index].id;
+  
+  // Clean up container
+  if (tabContainers.has(tabId)) {
+    const container = tabContainers.get(tabId);
+    container.remove();
+    tabContainers.delete(tabId);
+  }
+
   if (tabs.length === 1) {
     tabs[0].url = NEW_TAB;
+    tabs[0].title = "New Tab";
+    tabs[0].discarded = false;
     activeTabIndex = 0;
     loadActiveTab();
     renderTabs();
@@ -453,44 +551,85 @@ function closeTab(index) {
 /* ---------- NAVIGATION ---------- */
 function loadURL() {
   const input = document.getElementById("url");
+  if (!input) return;
   let url = input.value.trim();
 
   if (!url) return;
-  if (!url.startsWith("http")) url = "https://" + url;
+  
+  // Check if it's a URL or a search query
+  if (!url.startsWith("http") && !url.startsWith("file://")) {
+    if (url.includes(".") && !url.includes(" ")) {
+      url = "https://" + url;
+    } else {
+      url = "https://www.google.com/search?q=" + encodeURIComponent(url);
+    }
+  }
 
   tabs[activeTabIndex].url = url;
-  loadActiveTab();
+  
+  const container = tabContainers.get(tabs[activeTabIndex].id);
+  if (container) {
+    const webview = container.querySelector("webview");
+    if (webview) {
+      webview.loadURL(url);
+    } else {
+      loadActiveTab();
+    }
+  } else {
+    loadActiveTab();
+  }
 }
 
 function goBack() {
-  const webview = document.getElementById("view");
-  if (!webview) return;
-
-  if (webview.canGoBack()) {
+  const activeTab = tabs[activeTabIndex];
+  if (!activeTab) return;
+  const container = tabContainers.get(activeTab.id);
+  if (!container) return;
+  const webview = container.querySelector("webview");
+  if (webview && webview.canGoBack()) {
     webview.goBack();
   }
 }
 
 function goForward() {
-  const webview = document.getElementById("view");
-  if (!webview) return;
-
-  if (webview.canGoForward()) {
+  const activeTab = tabs[activeTabIndex];
+  if (!activeTab) return;
+  const container = tabContainers.get(activeTab.id);
+  if (!container) return;
+  const webview = container.querySelector("webview");
+  if (webview && webview.canGoForward()) {
     webview.goForward();
   }
 }
 
 /* ---------- PDF ---------- */
 function openPDF() {
-  ipcRenderer.send("open-pdf");
+  if (electronAPI) {
+    electronAPI.send("open-pdf");
+  } else {
+    console.error("electronAPI not available");
+  }
 }
 
-ipcRenderer.on("load-pdf", (_, pdfPath) => {
-  tabs[activeTabIndex].url = `file://${pdfPath}`;
-  tabs[activeTabIndex].title = "PDF: " + pdfPath.split("\\").pop();
-  setTabLoading(activeTabIndex, true);
-  loadActiveTab();
-});
+if (electronAPI) {
+  electronAPI.on("load-pdf", (pdfPath) => {
+    const url = "file://" + pdfPath;
+    tabs[activeTabIndex].url = url;
+    tabs[activeTabIndex].title = "PDF: " + pdfPath.split("\\").pop();
+    
+    const container = tabContainers.get(tabs[activeTabIndex].id);
+    if (container) {
+      const webview = container.querySelector("webview");
+      if (webview) {
+        webview.loadURL(url);
+      } else {
+        loadActiveTab();
+      }
+    } else {
+      loadActiveTab();
+    }
+  });
+}
 
 /* ---------- MODES ---------- */
 function toggleStudyMode() {
@@ -539,7 +678,11 @@ function toggleStudyMode() {
 }
 
 function toggleReaderMode() {
-  const webview = document.getElementById("view");
+  const activeTab = tabs[activeTabIndex];
+  if (!activeTab) return;
+  const container = tabContainers.get(activeTab.id);
+  if (!container) return;
+  const webview = container.querySelector("webview");
   if (!webview) return;
 
   readerMode = !readerMode;
@@ -581,12 +724,14 @@ function toggleTheme() {
     
     // Update icon
     const svg = themeBtn.querySelector("svg");
-    if (darkMode) {
-      // Moon icon
-      svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-    } else {
-      // Sun icon
-      svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    if (svg) {
+      if (darkMode) {
+        // Moon icon
+        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      } else {
+        // Sun icon
+        svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      }
     }
   }
   
@@ -594,10 +739,8 @@ function toggleTheme() {
   const logo = document.getElementById("browser-logo");
   if (logo) {
     if (darkMode) {
-      logo.src = "../../../assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
       logo.style.filter = "invert(1) hue-rotate(180deg)";
     } else {
-      logo.src = "../../../assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png";
       logo.style.filter = "none";
     }
   }
@@ -608,13 +751,17 @@ function toggleTheme() {
     document.documentElement.classList.remove("dark");
   }
   
-  // Communicate theme change to iframe
-  const iframe = document.querySelector("#content iframe");
-  if (iframe && iframe.contentWindow) {
-    iframe.contentWindow.postMessage({
-      type: 'THEME_CHANGE',
-      isDark: darkMode
-    }, '*');
+  // Communicate theme change to active iframe
+  const activeTab = tabs[activeTabIndex];
+  if (activeTab && tabContainers.has(activeTab.id)) {
+    const container = tabContainers.get(activeTab.id);
+    const iframe = container.querySelector("iframe");
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'THEME_CHANGE',
+        isDark: darkMode
+      }, '*');
+    }
   }
   
   // Save theme preference
@@ -635,12 +782,14 @@ function loadTheme() {
     
     // Update icon
     const svg = themeBtn.querySelector("svg");
-    if (darkMode) {
-      // Moon icon
-      svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-    } else {
-      // Sun icon
-      svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    if (svg) {
+      if (darkMode) {
+        // Moon icon
+        svg.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      } else {
+        // Sun icon
+        svg.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      }
     }
   }
   
@@ -837,7 +986,7 @@ function renderSSHProfilesList() {
     const meta = document.createElement("div");
     meta.className = "profile-meta";
     const port = profile.port || 22;
-    meta.textContent = `${profile.username}@${profile.host}:${port}`;
+    meta.textContent = profile.username + "@" + profile.host + ":" + port;
 
     const auth = document.createElement("div");
     auth.className = "profile-meta";
@@ -859,7 +1008,7 @@ function renderSSHProfilesList() {
     deleteBtn.type = "button";
     deleteBtn.textContent = "Delete";
     deleteBtn.addEventListener("click", () => {
-      const ok = confirm(`Delete profile "${profile.name}"?`);
+      const ok = confirm("Delete profile \"" + profile.name + "\"?");
       if (!ok) return;
       sshProfiles = sshProfiles.filter((p) => p.id !== profile.id);
       saveSSHProfiles();
@@ -907,23 +1056,23 @@ function saveSSHProfileFromForm() {
     if (index !== -1) {
       sshProfiles[index] = {
         ...sshProfiles[index],
-        name,
-        host,
-        port,
-        username,
+        name: name,
+        host: host,
+        port: port,
+        username: username,
         auth: "ssh-key",
-        keyPath
+        keyPath: keyPath
       };
     }
   } else {
     sshProfiles.push({
-      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      name,
-      host,
-      port,
-      username,
+      id: Date.now() + "-" + Math.random().toString(16).slice(2),
+      name: name,
+      host: host,
+      port: port,
+      username: username,
       auth: "ssh-key",
-      keyPath
+      keyPath: keyPath
     });
   }
 
@@ -988,7 +1137,8 @@ document.addEventListener("keydown", (e) => {
   // Focus URL bar
   if (e.ctrlKey && e.key === "l") {
     e.preventDefault();
-    document.getElementById("url").focus();
+    const urlInput = document.getElementById("url");
+    if (urlInput) urlInput.focus();
   }
 
   // Back
@@ -1052,6 +1202,7 @@ function restoreSession() {
 
   if (!raw) {
     tabs = [{
+      id: "tab-" + Date.now(),
       url: NEW_TAB,
       title: "New Tab",
       lastActive: Date.now(),
@@ -1062,36 +1213,51 @@ function restoreSession() {
     return;
   }
 
-  const session = JSON.parse(raw);
+  try {
+    const session = JSON.parse(raw);
+    const activeIndex = session.activeTabIndex || 0;
 
-  const activeIndex = session.activeTabIndex || 0;
+    tabs = session.tabs.map((t, index) => ({
+      id: t.id || ("tab-" + Date.now() + "-" + index),
+      url: t.url,
+      title: t.title,
+      lastActive: Date.now(),
+      discarded: index !== activeIndex,
+      isLoading: false
+    }));
 
-  tabs = session.tabs.map((t, index) => ({
-    url: t.url,
-    title: t.title,
-    lastActive: Date.now(),
-    discarded: index !== activeIndex,
-    isLoading: false
-  }));
-
-  activeTabIndex = activeIndex;
+    activeTabIndex = activeIndex;
+  } catch (err) {
+    console.error("Failed to restore session", err);
+    tabs = [{
+      id: "tab-" + Date.now(),
+      url: NEW_TAB,
+      title: "New Tab",
+      lastActive: Date.now(),
+      discarded: false,
+      isLoading: false
+    }];
+    activeTabIndex = 0;
+  }
 }
 
 function saveSession() {
   const sessionData = {
     tabs: tabs.map(t => ({
+      id: t.id,
       url: t.url,
       title: t.title,
       discarded: true   // restore everything as discarded
     })),
-    activeTabIndex
+    activeTabIndex: activeTabIndex
   };
 
   localStorage.setItem("lastSession", JSON.stringify(sessionData));
 }
 
 function restorePreviousSession() {
-  document.getElementById("restore-bar").style.display = "none";
+  const restoreBar = document.getElementById("restore-bar");
+  if (restoreBar) restoreBar.style.display = "none";
 
   restoreSession();
   renderTabs();
@@ -1099,7 +1265,8 @@ function restorePreviousSession() {
 }
 
 function startFresh() {
-  document.getElementById("restore-bar").style.display = "none";
+  const restoreBar = document.getElementById("restore-bar");
+  if (restoreBar) restoreBar.style.display = "none";
   localStorage.removeItem("lastSession");
 }
 
@@ -1121,9 +1288,11 @@ window.goForward = goForward;
 window.openPDF = openPDF;
 window.toggleStudyMode = toggleStudyMode;
 window.toggleReaderMode = toggleReaderMode;
+window.toggleTheme = toggleTheme;
 window.restorePreviousSession = restorePreviousSession;
 window.startFresh = startFresh;
 window.dismissRestoreBar = dismissRestoreBar;
 window.openSSHInfo = openSSHInfo;
 window.openSSHProfiles = openSSHProfiles;
 window.openSettings = openSettings;
+})();
