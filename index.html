@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Studium is a lightweight browser built for PDF-heavy study sessions with predictable memory usage and intentional browsing controls." />
   <meta name="theme-color" content="#0b1020" />
-  <meta property="og:title" content="Studium — Lightweight Desktop Browser for Students" />
+  <meta property="og:title" content="Studium | Lightweight Desktop Browser for Students" />
   <meta property="og:description" content="Study faster with a browser built for focus, not clutter. ~2× lower RAM, 5-tab limit, distraction-free reading." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/evidence/notfrezed.png" />
   <meta name="twitter:card" content="summary_large_image" />
-  <title>Studium Browser — Lightweight Browser for Study Sessions</title>
+  <title>Studium | Lightweight Browser for Study Sessions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/showcase.css" />
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" />
-  <link rel="apple-touch-icon" href="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/studium-logo.png" />
+  <link rel="apple-touch-icon" href="assets/img/studium-logo.png" />
   <link rel="manifest" href="manifest.json" />
 </head>
 <body>
@@ -29,11 +29,11 @@
   <header class="site-header" role="banner">
     <div class="container nav-wrap">
       <a class="brand" href="#top" aria-label="Studium home">
-        <img src="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="" aria-hidden="true" width="36" height="36" />
+        <img src="assets/img/studium-logo.png" alt="" aria-hidden="true" width="36" height="36" />
         <span>Studium</span>
       </a>
 
-      <nav class="nav-links" aria-label="Primary navigation">
+      <nav class="nav-links" id="primaryNavigation" aria-label="Primary navigation">
         <a href="#features">Features</a>
         <a href="#comparison">Comparison</a>
         <a href="#performance">Performance</a>
@@ -43,22 +43,29 @@
       </nav>
 
       <div class="header-actions">
-        <button class="btn btn-ghost theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" aria-pressed="false">
+        <button class="btn btn-ghost theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" aria-pressed="false" title="Toggle theme">
           <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
-        <a class="btn btn-primary btn-sm" data-download-link href="#" aria-label="Download Studium for Windows">Download (104 MB)</a>
+        <a class="btn btn-primary btn-sm header-download" data-download-link href="#" aria-label="Download Studium for Windows">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>Download</span><span class="header-download-size">(104 MB)</span>
+        </a>
+        <button class="btn btn-ghost menu-toggle" id="menuToggle" type="button" aria-label="Open navigation menu" aria-controls="primaryNavigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main id="main" id="top">
+  <main id="main">
+  <div id="top"></div>
     <!-- HERO SECTION -->
     <section class="hero section" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
-          <p class="eyebrow">Final Year Project · Desktop Browser</p>
-          <h1 id="hero-title">Study faster with a browser built for <span class="hero-highlight">focus, not clutter.</span></h1>
+          <p class="hero-badge"><span class="badge-dot" aria-hidden="true"></span>A lightweight desktop browser</p>
+          <h1 id="hero-title">A browser for <span class="hero-highlight">focus, not clutter.</span></h1>
           <p class="hero-subtext">
             Studium is a lightweight browser designed for PDF-heavy academic workflows.
             Predictable memory usage, intentional tab limits, and distraction-free reading in one clean desktop app.
@@ -72,27 +79,6 @@
             <a class="btn btn-secondary" href="#features">Explore Features</a>
           </div>
 
-          <div class="meta-list">
-            <div class="meta-item">
-              <span class="meta-value">~2× lower RAM</span>
-              <span class="meta-label">than Edge in same PDF scenario</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-value">5-tab hard limit</span>
-              <span class="meta-label">for controlled memory usage</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-value">~2–3 sec</span>
-              <span class="meta-label">cold start on Windows 11</span>
-            </div>
-          </div>
-
-          <!-- Trust indicators -->
-          <div class="trust-indicators" aria-label="Trust indicators">
-            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Open Source</span>
-            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> MIT Licensed</span>
-            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> No Telemetry</span>
-          </div>
         </div>
 
         <div class="hero-visual reveal">
@@ -112,11 +98,30 @@
           </div>
           <p class="visual-caption">Real screenshot from Studium test build — PDF viewer with Study Mode active</p>
 
-          <!-- Interactive demo hint -->
-          <div class="demo-hint" aria-live="polite">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-            <span>Press <kbd>F1</kbd> in-app for keyboard shortcuts</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero-proof" aria-label="Studium highlights">
+      <div class="container">
+        <div class="meta-list">
+          <div class="meta-item">
+            <span class="meta-value">~2× lower RAM</span>
+            <span class="meta-label">than Edge in same PDF scenario</span>
           </div>
+          <div class="meta-item">
+            <span class="meta-value">5-tab hard limit</span>
+            <span class="meta-label">for controlled memory usage</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-value">~2–3 sec</span>
+            <span class="meta-label">cold start on Windows 11</span>
+          </div>
+        </div>
+        <div class="trust-indicators" aria-label="Trust indicators">
+          <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Open Source</span>
+          <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> MIT Licensed</span>
+          <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> No Telemetry</span>
         </div>
       </div>
     </section>
@@ -309,7 +314,7 @@
             </div>
             <p class="stat-value">~210–230 MB</p>
             <p class="stat-label">Idle memory (Studium)</p>
-            <div class="stat-bar"><span style="width: 28%"></span></div>
+            <div class="stat-bar"><span data-width="28"></span></div>
           </article>
           <article class="stat-card reveal">
             <div class="stat-icon" aria-hidden="true">
@@ -317,7 +322,7 @@
             </div>
             <p class="stat-value">~380–400 MB</p>
             <p class="stat-label">Idle memory (Edge)</p>
-            <div class="stat-bar"><span style="width: 50%"></span></div>
+            <div class="stat-bar"><span data-width="50"></span></div>
           </article>
           <article class="stat-card reveal">
             <div class="stat-icon" aria-hidden="true">
@@ -325,7 +330,7 @@
             </div>
             <p class="stat-value">~300–320 MB</p>
             <p class="stat-label">PDF + tabs (Studium)</p>
-            <div class="stat-bar"><span style="width: 40%"></span></div>
+            <div class="stat-bar"><span data-width="40"></span></div>
           </article>
           <article class="stat-card reveal">
             <div class="stat-icon" aria-hidden="true">
@@ -333,22 +338,22 @@
             </div>
             <p class="stat-value">~800+ MB</p>
             <p class="stat-label">PDF + tabs (Edge)</p>
-            <div class="stat-bar"><span style="width: 100%"></span></div>
+            <div class="stat-bar"><span data-width="100"></span></div>
           </article>
         </div>
 
         <!-- Interactive benchmark visual -->
         <div class="benchmark-visual reveal" role="img" aria-label="Memory comparison chart showing Studium using significantly less RAM">
           <div class="benchmark-bars">
-            <div class="bench-bar studium" style="--height: 28%" data-value="220 MB">
+            <div class="bench-bar studium" data-height="28" data-value="220 MB">
               <span class="bench-label">Studium</span>
               <span class="bench-value">220 MB</span>
             </div>
-            <div class="bench-bar edge" style="--height: 50%" data-value="390 MB">
+            <div class="bench-bar edge" data-height="50" data-value="390 MB">
               <span class="bench-label">Edge</span>
               <span class="bench-value">390 MB</span>
             </div>
-            <div class="bench-bar chrome" style="--height: 62%" data-value="475 MB">
+            <div class="bench-bar chrome" data-height="62" data-value="475 MB">
               <span class="bench-label">Chrome</span>
               <span class="bench-value">475 MB</span>
             </div>

@@ -67,6 +67,58 @@
     });
   }
 
+  function initNavigation() {
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('primaryNavigation');
+    if (!toggle || !nav) return;
+
+    const mobileQuery = window.matchMedia('(max-width: 900px)');
+    const closeMenu = (restoreFocus = false) => {
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+      nav.classList.remove('is-open');
+      if (restoreFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      toggle.setAttribute('aria-label', isOpen ? 'Open navigation menu' : 'Close navigation menu');
+      nav.classList.toggle('is-open', !isOpen);
+    });
+
+    nav.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', () => closeMenu());
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        closeMenu(true);
+      }
+    });
+
+    mobileQuery.addEventListener('change', (event) => {
+      if (!event.matches) closeMenu();
+    });
+
+    if ('IntersectionObserver' in window) {
+      const linksByTarget = new Map(
+        Array.from(nav.querySelectorAll('a[href^="#"]'))
+          .map((link) => [document.querySelector(link.getAttribute('href')), link])
+          .filter(([target]) => target)
+      );
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          linksByTarget.forEach((link) => link.removeAttribute('aria-current'));
+          linksByTarget.get(entry.target)?.setAttribute('aria-current', 'location');
+        });
+      }, { rootMargin: '-25% 0px -65% 0px' });
+
+      linksByTarget.forEach((_, target) => observer.observe(target));
+    }
+  }
+
   // Download link wiring
   function wireDownloadLinks() {
     const links = document.querySelectorAll('[data-download-link]');
@@ -130,32 +182,7 @@
     revealNodes.forEach((node) => observer.observe(node));
   }
 
-  // Hero typing animation (optional, can be disabled)
-  function startTyping() {
-    const h1 = document.querySelector('.hero-copy h1');
-    if (!h1) return;
-
-    // Check if user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
-
-    const text = h1.textContent;
-    if (text.length > 100) return; // Don't type very long text
-
-    h1.textContent = '';
-    let i = 0;
-    const type = () => {
-      if (i < text.length) {
-        h1.textContent += text.charAt(i);
-        i++;
-        setTimeout(type, 35);
-      }
-    };
-    // Small delay before starting
-    setTimeout(type, 400);
-  }
-
+  
   // Smooth scroll enhancement for anchor links
   function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -274,6 +301,66 @@
     document.head.appendChild(fontLink);
   }
 
+  // Initialize benchmark bars
+  function initBenchmarkBars() {
+    const bars = document.querySelectorAll('.bench-bar[data-height]');
+    if (bars.length === 0) return;
+
+    // Use IntersectionObserver to animate when visible
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      bars.forEach(bar => {
+        const height = bar.dataset.height;
+        bar.style.height = height + '%';
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const bar = entry.target;
+          const height = bar.dataset.height;
+          bar.style.height = height + '%';
+          observer.unobserve(bar);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    bars.forEach(bar => observer.observe(bar));
+  }
+
+  // Initialize stat bars
+  function initStatBars() {
+    const bars = document.querySelectorAll('.stat-bar span[data-width]');
+    if (bars.length === 0) return;
+
+    // Use IntersectionObserver to animate when visible
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      bars.forEach(bar => {
+        const width = bar.dataset.width;
+        bar.style.width = width + '%';
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const bar = entry.target;
+          const width = bar.dataset.width;
+          bar.style.width = width + '%';
+          observer.unobserve(bar);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    bars.forEach(bar => observer.observe(bar));
+  }
+
   // Initialize everything when DOM is ready
   function init() {
     // Core features
@@ -284,12 +371,14 @@
     // Theme
     initTheme();
     initThemeToggle();
+    initNavigation();
 
     // Animations & interactions
     startRevealAnimations();
-    startTyping();
     initSmoothScroll();
     initFeatureCardKeyboard();
+    initBenchmarkBars();
+    initStatBars();
 
     // Fallbacks & error handling
     initLazyLoadingFallback();
