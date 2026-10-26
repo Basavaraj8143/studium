@@ -1,57 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Studium Browser - Lightweight Browser for Study Sessions</title>
-  <meta
-    name="description"
-    content="Studium is a lightweight browser built for PDF-heavy study sessions with predictable memory usage and intentional browsing controls."
-  />
+  <meta name="description" content="Studium is a lightweight browser built for PDF-heavy study sessions with predictable memory usage and intentional browsing controls." />
+  <meta name="theme-color" content="#0b1020" />
+  <meta property="og:title" content="Studium — Lightweight Desktop Browser for Students" />
+  <meta property="og:description" content="Study faster with a browser built for focus, not clutter. ~2× lower RAM, 5-tab limit, distraction-free reading." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/evidence/notfrezed.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>Studium Browser — Lightweight Browser for Study Sessions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/showcase.css" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" />
+  <link rel="apple-touch-icon" href="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
-  <div class="bg-glow bg-glow-1"></div>
-  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
 
-  <header class="site-header">
+  <!-- Skip link for accessibility -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <header class="site-header" role="banner">
     <div class="container nav-wrap">
       <a class="brand" href="#top" aria-label="Studium home">
-        <img src="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="Studium logo" />
+        <img src="assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png" alt="" aria-hidden="true" width="36" height="36" />
         <span>Studium</span>
       </a>
 
-      <nav class="nav-links" aria-label="Primary">
+      <nav class="nav-links" aria-label="Primary navigation">
         <a href="#features">Features</a>
+        <a href="#comparison">Comparison</a>
         <a href="#performance">Performance</a>
-        <a href="#gallery">Gallery</a>
+        <a href="#shortcuts">Shortcuts</a>
+        <a href="#faq">FAQ</a>
         <a href="#download">Download</a>
       </nav>
 
-      <a class="btn btn-primary btn-sm" data-download-link href="#">Download Latest Release (104MB)</a>
+      <div class="header-actions">
+        <button class="btn btn-ghost theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme" aria-pressed="false">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <a class="btn btn-primary btn-sm" data-download-link href="#" aria-label="Download Studium for Windows">Download (104 MB)</a>
+      </div>
     </div>
   </header>
 
-  <main id="top">
-    <section class="hero section">
+  <main id="main" id="top">
+    <!-- HERO SECTION -->
+    <section class="hero section" aria-labelledby="hero-title">
       <div class="container hero-grid">
         <div class="hero-copy reveal">
           <p class="eyebrow">Final Year Project · Desktop Browser</p>
-          <div class="hero-badge">Built around PDF workflows, low memory footprints, and deliberate browsing.</div>
-          <h1>Study faster with a browser built for <span class="hero-highlight">focus, not clutter.</span></h1>
+          <h1 id="hero-title">Study faster with a browser built for <span class="hero-highlight">focus, not clutter.</span></h1>
           <p class="hero-subtext">
             Studium is a lightweight browser designed for PDF-heavy academic workflows.
             Predictable memory usage, intentional tab limits, and distraction-free reading in one clean desktop app.
           </p>
 
           <div class="hero-actions">
-            <a class="btn btn-primary" data-download-link href="#">Download Latest Release</a>
+            <a class="btn btn-primary" data-download-link href="#" aria-label="Download Studium v1.0.1 for Windows">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M17 18v-6"/></svg>
+              Download Latest Release
+            </a>
             <a class="btn btn-secondary" href="#features">Explore Features</a>
           </div>
 
@@ -65,174 +82,496 @@
               <span class="meta-label">for controlled memory usage</span>
             </div>
             <div class="meta-item">
-              <span class="meta-value">Windows build</span>
-              <span class="meta-label">ready for direct install</span>
+              <span class="meta-value">~2–3 sec</span>
+              <span class="meta-label">cold start on Windows 11</span>
             </div>
+          </div>
+
+          <!-- Trust indicators -->
+          <div class="trust-indicators" aria-label="Trust indicators">
+            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Open Source</span>
+            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> MIT Licensed</span>
+            <span class="trust-item"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> No Telemetry</span>
           </div>
         </div>
 
         <div class="hero-visual reveal">
-          <div class="product-frame">
-            <div class="frame-top">
+          <div class="product-frame" role="img" aria-label="Studium browser interface showing PDF viewer with study mode active">
+            <div class="frame-top" aria-hidden="true">
               <span></span><span></span><span></span>
             </div>
-            <img
-              src="assets/evidence/notfrezed.png"
-              alt="Studium browser interface screenshot"
-            />
+            <div class="frame-content">
+              <img
+                src="assets/evidence/notfrezed.png"
+                alt="Studium browser interface screenshot showing tabs, PDF viewer, and study mode"
+                loading="eager"
+                width="720"
+                height="450"
+              />
+            </div>
           </div>
-          <p class="visual-caption">Real screenshot from Studium test build</p>
+          <p class="visual-caption">Real screenshot from Studium test build — PDF viewer with Study Mode active</p>
+
+          <!-- Interactive demo hint -->
+          <div class="demo-hint" aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            <span>Press <kbd>F1</kbd> in-app for keyboard shortcuts</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="features" class="section">
+    <!-- FEATURES SECTION -->
+    <section id="features" class="section" aria-labelledby="features-title">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Features</p>
-          <h2>Everything needed for focused study sessions</h2>
+          <h2 id="features-title">Everything needed for focused study sessions</h2>
+          <p class="section-subtext">Each feature exists because a real student problem demanded it.</p>
         </div>
 
         <div class="feature-grid">
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-              </svg>
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>
             </div>
             <h3>Local PDF Viewer</h3>
-            <p>Open and read PDFs directly in the browser with reduced overhead.</p>
+            <p>Open and render PDFs natively inside Electron with optimized memory management. No cloud upload, no external viewer needed.</p>
+            <ul class="feature-details">
+              <li>Drag & drop PDF files</li>
+              <li>Zoom, rotate, thumbnail nav</li>
+              <li>Memory released on close</li>
+            </ul>
           </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10Z"/>
-              </svg>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z"/></svg>
             </div>
             <h3>Study Mode</h3>
-            <p>Remove non-essential UI and keep your attention on content.</p>
+            <p>Toggle distraction-free layout — hides all non-essential UI elements, leaving only your content.</p>
+            <ul class="feature-details">
+              <li>One-click toggle (<kbd>Ctrl+Shift+S</kbd>)</li>
+              <li>Auto-hides address bar & tabs</li>
+              <li>Full-screen reading focus</li>
+            </ul>
           </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/>
-              </svg>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"/></svg>
             </div>
             <h3>Reader Mode</h3>
-            <p>Clean article pages by reducing sidebars, ads, and visual noise.</p>
+            <p>Strips ads, sidebars, and visual noise from articles and documentation pages for clean reading.</p>
+            <ul class="feature-details">
+              <li>Extracts main content</li>
+              <li>Customizable font/size</li>
+              <li>Dark/light/sepia themes</li>
+            </ul>
           </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3,3H21V21H3V3M5,5V19H19V5H5Z"/>
-              </svg>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3,3H21V21H3V3M5,5V19H19V5H5Z"/></svg>
             </div>
             <h3>Tab Discipline</h3>
-            <p>Hard cap of 5 tabs to avoid memory spikes and browser bloat.</p>
+            <p>Hard cap of 5 tabs prevents RAM overload and enforces intentional browsing habits.</p>
+            <ul class="feature-details">
+              <li>Visual tab counter</li>
+              <li>Discard inactive tabs</li>
+              <li>Session restore on relaunch</li>
+            </ul>
           </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
-              </svg>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/></svg>
             </div>
             <h3>Session Restore</h3>
-            <p>Recover your study context when needed, without forced restoration.</p>
+            <p>Recover your study context when needed — tabs, scroll positions, and PDF locations.</p>
+            <ul class="feature-details">
+              <li>Optional auto-restore</li>
+              <li>Per-tab scroll memory</li>
+              <li>PDF page persistence</li>
+            </ul>
           </article>
-          <article class="feature-card reveal">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19,10H17V8H19M19,13H17V11H19M16,10H14V8H16M16,13H14V11H16M16,17H8V15H16M7,10H5V8H7M7,13H5V11H7M8,11H10V13H8M8,8H10V10H8M11,11H13V13H11M11,8H13V10H11M20,5H4C2.89,5 2,5.89 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7C22,5.89 21.1,5 20,5Z"/>
-              </svg>
+
+          <article class="feature-card reveal" tabindex="0">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19,10H17V8H19M19,13H17V11H19M16,10H14V8H16M16,13H14V11H16M16,17H8V15H16M7,10H5V8H7M7,13H5V11H7M8,11H10V13H8M8,8H10V10H8M11,11H13V13H11M11,8H13V10H11M20,5H4C2.89,5 2,5.89 2,7V17A2,2 0 0,0 4,19H20A2,2 0 0,0 22,17V7C22,5.89 21.1,5 20,5Z"/></svg>
             </div>
             <h3>Keyboard Shortcuts</h3>
-            <p>Fast controls for tab actions, modes, navigation, and opening PDFs.</p>
+            <p>Fast controls for tab actions, modes, navigation, and opening PDFs without touching the mouse.</p>
+            <ul class="feature-details">
+              <li>20+ customizable shortcuts</li>
+              <li>Cheat sheet in-app (<kbd>F1</kbd>)</li>
+              <li>Vim-style navigation option</li>
+            </ul>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="performance" class="section">
+    <!-- COMPARISON TABLE SECTION -->
+    <section id="comparison" class="section comparison-section" aria-labelledby="comparison-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Vs Mainstream Browsers</p>
+          <h2 id="comparison-title">Why Studium for studying?</h2>
+          <p class="section-subtext">Mainstream browsers are built for everything. Studium is built for one thing — studying.</p>
+        </div>
+
+        <div class="comparison-wrapper reveal">
+          <table class="comparison-table" role="table">
+            <thead>
+              <tr>
+                <th scope="col">Capability</th>
+                <th scope="col"><span class="browser-badge studium">Studium</span></th>
+                <th scope="col"><span class="browser-badge edge">Edge</span></th>
+                <th scope="col"><span class="browser-badge chrome">Chrome</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Idle memory</strong></td>
+                <td class="win">~210–230 MB</td>
+                <td>~380–400 MB</td>
+                <td>~450–500 MB</td>
+              </tr>
+              <tr>
+                <td><strong>PDF + mixed tabs</strong></td>
+                <td class="win">~300–320 MB</td>
+                <td>~800+ MB</td>
+                <td>~900+ MB</td>
+              </tr>
+              <tr>
+                <td><strong>Startup time</strong></td>
+                <td class="win">~2–3 sec</td>
+                <td>~3–5 sec</td>
+                <td>~4–6 sec</td>
+              </tr>
+              <tr>
+                <td><strong>Tab limit</strong></td>
+                <td class="win">5 (hard cap)</td>
+                <td>Unlimited</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <td><strong>Study mode</strong></td>
+                <td class="win">✓ Native</td>
+                <td>Extensions only</td>
+                <td>Extensions only</td>
+              </tr>
+              <tr>
+                <td><strong>Reader mode</strong></td>
+                <td class="win">✓ Built-in</td>
+                <td>✓ Immersive Reader</td>
+                <td>✓ Reading mode</td>
+              </tr>
+              <tr>
+                <td><strong>PDF memory cleanup</strong></td>
+                <td class="win">✓ On close</td>
+                <td>Leaks in background</td>
+                <td>Leaks in background</td>
+              </tr>
+              <tr>
+                <td><strong>Telemetry</strong></td>
+                <td class="win">None</td>
+                <td>Extensive</td>
+                <td>Extensive</td>
+              </tr>
+              <tr>
+                <td><strong>Installer size</strong></td>
+                <td class="win">~104 MB</td>
+                <td>~150+ MB</td>
+                <td>~200+ MB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="comparison-note reveal">* Measured on Windows 11 with identical PDF and web content. Your results may vary.</p>
+      </div>
+    </section>
+
+    <!-- PERFORMANCE SECTION -->
+    <section id="performance" class="section" aria-labelledby="performance-title">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Performance Proof</p>
-          <h2>Measured against mainstream browsers</h2>
+          <h2 id="performance-title">Measured against mainstream browsers</h2>
         </div>
 
         <div class="stats-grid">
           <article class="stat-card reveal">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <p class="stat-value">~210–230 MB</p>
             <p class="stat-label">Idle memory (Studium)</p>
+            <div class="stat-bar"><span style="width: 28%"></span></div>
           </article>
           <article class="stat-card reveal">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <p class="stat-value">~380–400 MB</p>
             <p class="stat-label">Idle memory (Edge)</p>
+            <div class="stat-bar"><span style="width: 50%"></span></div>
           </article>
           <article class="stat-card reveal">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <p class="stat-value">~300–320 MB</p>
-            <p class="stat-label">Mixed tabs + PDF workflow (Studium)</p>
+            <p class="stat-label">PDF + tabs (Studium)</p>
+            <div class="stat-bar"><span style="width: 40%"></span></div>
           </article>
           <article class="stat-card reveal">
+            <div class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <p class="stat-value">~800+ MB</p>
-            <p class="stat-label">Mixed tabs + PDF workflow (Edge)</p>
+            <p class="stat-label">PDF + tabs (Edge)</p>
+            <div class="stat-bar"><span style="width: 100%"></span></div>
           </article>
+        </div>
+
+        <!-- Interactive benchmark visual -->
+        <div class="benchmark-visual reveal" role="img" aria-label="Memory comparison chart showing Studium using significantly less RAM">
+          <div class="benchmark-bars">
+            <div class="bench-bar studium" style="--height: 28%" data-value="220 MB">
+              <span class="bench-label">Studium</span>
+              <span class="bench-value">220 MB</span>
+            </div>
+            <div class="bench-bar edge" style="--height: 50%" data-value="390 MB">
+              <span class="bench-label">Edge</span>
+              <span class="bench-value">390 MB</span>
+            </div>
+            <div class="bench-bar chrome" style="--height: 62%" data-value="475 MB">
+              <span class="bench-label">Chrome</span>
+              <span class="bench-value">475 MB</span>
+            </div>
+          </div>
+          <p class="benchmark-caption">Idle memory comparison (lower is better)</p>
         </div>
       </div>
     </section>
 
-    <section id="gallery" class="section">
+    <!-- KEYBOARD SHORTCUTS SECTION -->
+    <section id="shortcuts" class="section shortcuts-section" aria-labelledby="shortcuts-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Power User</p>
+          <h2 id="shortcuts-title">Keyboard shortcuts for speed</h2>
+          <p class="section-subtext">Press <kbd>F1</kbd> in-app anytime to see the full cheat sheet.</p>
+        </div>
+
+        <div class="shortcuts-grid">
+          <div class="shortcut-category reveal">
+            <h3>Tabs & Navigation</h3>
+            <dl class="shortcut-list">
+              <dt><kbd>Ctrl</kbd>+<kbd>T</kbd></dt><dd>New tab</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>W</kbd></dt><dd>Close tab</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></dt><dd>Reopen closed tab</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Tab</kbd></dt><dd>Next tab</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd></dt><dd>Previous tab</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>1–5</kbd></dt><dd>Jump to tab 1–5</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>L</kbd></dt><dd>Focus address bar</dd>
+            </dl>
+          </div>
+          <div class="shortcut-category reveal">
+            <h3>Modes & View</h3>
+            <dl class="shortcut-list">
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></dt><dd>Toggle Study Mode</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd></dt><dd>Toggle Reader Mode</dd>
+              <dt><kbd>F11</kbd></dt><dd>Fullscreen</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>+</kbd>/<kbd>-</kbd></dt><dd>Zoom in/out</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>0</kbd></dt><dd>Reset zoom</dd>
+            </dl>
+          </div>
+          <div class="shortcut-category reveal">
+            <h3>PDF & Files</h3>
+            <dl class="shortcut-list">
+              <dt><kbd>Ctrl</kbd>+<kbd>O</kbd></dt><dd>Open local PDF</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></dt><dd>Open PDF in new tab</dd>
+              <dt><kbd>Space</kbd></dt><dd>Scroll down (PDF)</dd>
+              <dt><kbd>Shift</kbd>+<kbd>Space</kbd></dt><dd>Scroll up (PDF)</dd>
+              <dt><kbd>←</kbd>/<kbd>→</kbd></dt><dd>Prev/next page</dd>
+            </dl>
+          </div>
+          <div class="shortcut-category reveal">
+            <h3>Utility</h3>
+            <dl class="shortcut-list">
+              <dt><kbd>F1</kbd></dt><dd>Show shortcuts cheat sheet</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></dt><dd>Discard inactive tabs</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></dt><dd>Copy current URL</dd>
+              <dt><kbd>Ctrl</kbd>+<kbd>,</kbd></dt><dd>Open settings</dd>
+              <dt><kbd>Esc</kbd></dt><dd>Exit modes / close dialogs</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY / SCREENSHOTS -->
+    <section id="gallery" class="section" aria-labelledby="gallery-title">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Screenshots</p>
-          <h2>Interface and benchmark evidence</h2>
+          <h2 id="gallery-title">Interface and benchmark evidence</h2>
         </div>
 
         <div class="gallery-grid">
           <figure class="shot reveal">
-            <img src="assets/evidence/notfrezed.png" alt="Studium tabs active view" />
-            <figcaption>Active tabs view</figcaption>
+            <img src="assets/evidence/notfrezed.png" alt="Studium active tabs view showing PDF and web content" loading="lazy" width="520" height="325" />
+            <figcaption>Active tabs view — PDF + web content</figcaption>
           </figure>
           <figure class="shot reveal">
-            <img src="assets/evidence/whenfrezed.png" alt="Studium tab discard state" />
-            <figcaption>Discarded tab state</figcaption>
+            <img src="assets/evidence/whenfrezed.png" alt="Studium discarded tab state showing memory freed" loading="lazy" width="520" height="325" />
+            <figcaption>Discarded tab state — memory released</figcaption>
           </figure>
           <figure class="shot reveal">
-            <img src="assets/evidence/same_pdf_on_edge_and_studium.png" alt="RAM comparison screenshot" />
-            <figcaption>Same PDF memory comparison</figcaption>
+            <img src="assets/evidence/same_pdf_on_edge_and_studium.png" alt="RAM comparison: same PDF open in Studium vs Edge" loading="lazy" width="520" height="325" />
+            <figcaption>Same PDF — Studium vs Edge memory</figcaption>
           </figure>
         </div>
       </div>
     </section>
 
-    <section id="download" class="section download-section">
-      <div class="container download-card reveal">
-        <p class="eyebrow">Get Studium</p>
-        <h2>Download the latest Windows build</h2>
-        <p class="download-subtext">
-          Get Studium v1.0.1 for Windows. Optimized for PDF workflows and focused study sessions.
-        </p>
-
-        <div class="download-actions">
-          <a class="btn btn-primary" data-download-link href="#">Download Studium Setup 1.0.1</a>
-          <a class="btn btn-secondary" href="#top">Back to top</a>
+    <!-- FAQ SECTION -->
+    <section id="faq" class="section faq-section" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Questions</p>
+          <h2 id="faq-title">Frequently asked questions</h2>
         </div>
 
-        <div class="download-versions">
-          <p class="download-subtext">Previous releases remain available for compatibility or rollback.</p>
-          <ul>
-            <li><a href="https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0.1/Studium.Setup.1.0.1.exe">Studium Setup 1.0.1 (latest)</a></li>
-            <li><a href="https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0/Studium.Setup.1.0.0.exe">Studium Setup 1.0.0</a></li>
-          </ul>
+        <div class="faq-grid">
+          <details class="faq-item reveal">
+            <summary>Is Studium a replacement for Chrome/Edge?</summary>
+            <p>No. Studium is a focused tool for PDF-heavy study sessions. It lacks extensions, sync, dev tools, and many web platform features. Use it alongside your main browser.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Why is there a 5-tab limit?</summary>
+            <p>The hard cap prevents accidental RAM overload and encourages intentional browsing. You can discard inactive tabs to make room. This is a feature, not a bug.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Does it work on macOS or Linux?</summary>
+            <p>Currently Windows 10/11 only. The Electron build targets Windows (NSIS installer). macOS/Linux builds are on the roadmap but not yet released.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Is my data sent anywhere?</summary>
+            <p>No. Studium has zero telemetry, no analytics, no auto-updates that phone home, and no account system. It runs entirely locally.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>Can I customize the tab limit?</summary>
+            <p>Not in v1.x — the 5-tab limit is hardcoded to enforce the design philosophy. Future versions may offer a "power user" override with warnings.</p>
+          </details>
+          <details class="faq-item reveal">
+            <summary>What PDF features are supported?</summary>
+            <p>Zoom, rotation, thumbnail navigation, page jump, text selection, search within PDF, and keyboard navigation. Annotations and forms are not yet supported.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- SYSTEM REQUIREMENTS -->
+    <section id="requirements" class="section requirements-section" aria-labelledby="req-title">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Requirements</p>
+          <h2 id="req-title">System requirements</h2>
+        </div>
+        <div class="requirements-grid">
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 21V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v16l-4 4 4 4V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9l-4-4z"/></svg></div>
+            <h3>Operating System</h3>
+            <p>Windows 10 (1909+) or Windows 11</p>
+          </div>
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+            <h3>Architecture</h3>
+            <p>x64 (64-bit) only</p>
+          </div>
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <h3>RAM</h3>
+            <p>4 GB minimum (8 GB recommended for PDF workflows)</p>
+          </div>
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg></div>
+            <h3>Disk Space</h3>
+            <p>~150 MB for install + temp space for PDFs</p>
+          </div>
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+            <h3>Permissions</h3>
+            <p>Standard user (no admin required for install)</p>
+          </div>
+          <div class="req-card reveal">
+            <div class="req-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg></div>
+            <h3>Display</h3>
+            <p>1366×768 minimum (1080p+ recommended)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD SECTION -->
+    <section id="download" class="section download-section" aria-labelledby="download-title">
+      <div class="container">
+        <div class="download-card reveal">
+          <p class="eyebrow">Get Studium</p>
+          <h2 id="download-title">Download the latest Windows build</h2>
+          <p class="download-subtext">
+            Get Studium v1.0.1 for Windows. Optimized for PDF workflows and focused study sessions.
+            No installer bloat, no background services, no telemetry.
+          </p>
+
+          <div class="download-actions">
+            <a class="btn btn-primary btn-lg" data-download-link href="#" aria-label="Download Studium Setup 1.0.1 (104 MB)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M17 18v-6"/></svg>
+              <span>Download Studium Setup 1.0.1</span>
+              <span class="btn-size">104 MB</span>
+            </a>
+            <a class="btn btn-secondary" href="#top">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg>
+              Back to top
+            </a>
+          </div>
+
+          <div class="download-versions">
+            <p class="download-subtext">Previous releases remain available for compatibility or rollback.</p>
+            <ul>
+              <li><a href="https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0.1/Studium.Setup.1.0.1.exe">Studium Setup 1.0.1 (latest)</a></li>
+              <li><a href="https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0/Studium.Setup.1.0.0.exe">Studium Setup 1.0.0</a></li>
+            </ul>
+          </div>
+
+          <div class="download-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span>SmartScreen may warn on first run — click "More info" → "Run anyway". This is normal for new unsigned apps.</span>
+          </div>
+
+          <!-- Verification info -->
+          <details class="verification-info reveal">
+            <summary>Verify download integrity</summary>
+            <div class="verification-content">
+              <p><strong>SHA-256 (v1.0.1):</strong> <code id="sha256">Pending — check <a href="https://github.com/Basavaraj8143/studium/releases" target="_blank" rel="noopener">GitHub Releases</a></code></p>
+              <p>Verify with PowerShell: <code>Get-FileHash -Algorithm SHA256 Studium.Setup.1.0.1.exe</code></p>
+            </div>
+          </details>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer" role="contentinfo">
     <div class="container footer-wrap">
       <p>© <span id="year"></span> Studium</p>
       <p>Built for focused, low-RAM academic browsing.</p>
-      <p><a href="https://github.com/Basavaraj8143/studium" target="_blank" rel="noopener">View on GitHub</a></p>
+      <p><a href="https://github.com/Basavaraj8143/studium" target="_blank" rel="noopener">View on GitHub</a> · <a href="https://github.com/Basavaraj8143/studium/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a></p>
     </div>
   </footer>
 

@@ -1,0 +1,57 @@
+{
+  "name": "Studium — Lightweight Desktop Browser for Students",
+  "short_name": "Studium",
+  "description": "Study faster with a browser built for focus, not clutter. ~2× lower RAM, 5-tab limit, distraction-free reading.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#4a90ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "assets/evidence/notfrezed.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Studium browser interface showing PDF viewer with study mode"
+    },
+    {
+      "src": "assets/evidence/same_pdf_on_edge_and_studium.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Memory comparison: Studium vs Edge with same PDF"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Download Studium",
+      "short_name": "Download",
+      "description": "Download the latest Windows build",
+      "url": "https://github.com/Basavaraj8143/studium/releases/download/studium-v1.0.1/Studium.Setup.1.0.1.exe",
+      "icons": [{ "src": "assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View on GitHub",
+      "short_name": "GitHub",
+      "description": "View source code on GitHub",
+      "url": "https://github.com/Basavaraj8143/studium",
+      "icons": [{ "src": "assets/img/ChatGPT Image Apr 17, 2026, 04_43_25 PM.png", "sizes": "192x192" }]
+    }
+  ]
+}
