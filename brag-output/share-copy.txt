@@ -1,0 +1,2 @@
+Built a browser that uses half the RAM of Chrome on the same PDF. 5 tabs. No telemetry. No clutter. Just study.
+
